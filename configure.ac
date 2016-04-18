@@ -4,7 +4,6 @@
 AC_PREREQ(2.69)
 AC_INIT(ekho, 6.4.4, hgneng at gmail.com)
 AC_CONFIG_SRCDIR([lib/ekho.cpp])
-AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([-Wall foreign 1.9 tar-pax subdir-objects])
 AM_CONFIG_HEADER(config.h)
 
