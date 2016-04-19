@@ -9,4 +9,5 @@ bin_PROGRAMS = ekho_cmd
 
 ekho_cmd_SOURCES = src/ekho_cmd.cpp
 ekho_cmd_LDADD = libekho.a $(LIBEKHO_LIB)
+ekho_cmd_CXXFLAGS = -I$(srcdir)/include -pthread
 
