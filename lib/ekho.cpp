@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <signal.h>
 #include "config.h"
+#include "ekho_impl.h"
 #include "ekho.h"
 #include "ekho_dict.h"
 #include "sr-convert.cpp"
