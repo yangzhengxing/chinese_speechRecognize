@@ -1,5 +1,6 @@
 ===== INSTALL (for Linux) =====
 You need to have following libraries first:
+* libsonic-dev
 * libsndfile1-dev (http://www.mega-nerd.com/libsndfile/)
 * libpulse-dev
 * libncurses5-dev (required by --enable-festival)
