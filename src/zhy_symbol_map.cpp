@@ -31,7 +31,7 @@
 
 #line 1 "zhy_symbol_map"
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "phonetic_symbol.h"
 #include "zhy_symbol_map.h"
 #line 6 "zhy_symbol_map"
