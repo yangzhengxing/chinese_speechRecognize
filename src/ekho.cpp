@@ -35,7 +35,7 @@
 #include "ekho_impl.h"
 #include "ekho.h"
 #include "ekho_dict.h"
-#include "sr-convert.cpp"
+//#include "sr-convert.cpp"
 #include "sonic.h"
 #include "utf8.h"
 
