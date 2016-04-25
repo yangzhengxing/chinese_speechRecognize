@@ -95,7 +95,8 @@ void Dict::init(void) {
   memset(mKaSymbolLetter, 0, sizeof(mKaSymbolLetter));
   mKaSymbolIndex = 0;
 
-	mDataPath = getDefaultDataPath();
+  mDataPath = getDefaultDataPath();
+
 
 #ifdef ENABLE_FRISO
   string friso_dict_path = mDataPath + "/friso-dict/";
@@ -494,7 +495,7 @@ int Dict::setVoice(string voice) {
     }
 
 #ifndef _WIN32_WINNT
-	// FIXME: the index and voice file is very slow and not usable for the second time
+    // FIXME: the index and voice file is very slow and not usable for the second time
     if (mLanguage == CANTONESE || mLanguage == MANDARIN) {
       saveEkhoVoiceFile();
       loadEkhoVoiceFile(path);
@@ -989,7 +990,7 @@ int Dict::loadEspeakDict(const char *path) {
   int linecount = 1;
   while (!fs.eof() && !fs.fail()) {
     list<Character> char_list = Character::split(line);
-	if (char_list.size() > 0) {
+    if (char_list.size() > 0) {
     list<Character>::iterator c = char_list.begin();
     list<Character> word;
 
@@ -1180,7 +1181,7 @@ int Dict::loadEspeakDict(const char *path) {
         }
       }
 
-//	  cout << c3.code << c3.phonSymbol->symbol << endl; // debug code
+//  cout << c3.code << c3.phonSymbol->symbol << endl; // debug code
     }
 
     // bad line
@@ -1188,7 +1189,7 @@ int Dict::loadEspeakDict(const char *path) {
 //      cerr << "Bad espeak dictionary format at line " << linecount << ": " << line << endl; // debug code
     }
 
-	}
+    }
 
     getline(fs, line);
     linecount++;
@@ -1323,7 +1324,7 @@ int Dict::loadEkhoDict(const char *path) {
   unsigned short charCount;
 
 #ifdef DEBUG_PERF
-	clock_t begin_clock = clock();
+    clock_t begin_clock = clock();
 #endif
 
   while (infile.good()) {
@@ -1349,10 +1350,10 @@ int Dict::loadEkhoDict(const char *path) {
     lowbyte = (unsigned char)infile.get();
     symbolCode = (unsigned char)infile.get();
     symbolCode = (symbolCode << 8) + lowbyte;
-/*	if (! infile.good()) {
-		cerr << "fail to get at line " << __LINE__ << endl;
-		return -1;
-	}*/
+/*  if (! infile.good()) {
+        cerr << "fail to get at line " << __LINE__ << endl;
+        return -1;
+    }*/
     if (symbolCode > SYMBOL_ARRAY_SIZE) {
       cerr << "Corrupted dictionary (phonetic symbol code out of range): " <<
           symbolCode << " at line " << __LINE__ << endl;
@@ -1409,11 +1410,11 @@ int Dict::loadEkhoDict(const char *path) {
           lowbyte = (unsigned char)infile.get();
           symbolCode = (unsigned char)infile.get();
           symbolCode = (symbolCode << 8) + lowbyte;
-/*	      if (! infile.good()) {
-		    cerr << "fail to get at line " << __LINE__ << endl;
-		    return -1;
-	      }*/
-	      if (symbolCode > SYMBOL_ARRAY_SIZE) {
+/*        if (! infile.good()) {
+            cerr << "fail to get at line " << __LINE__ << endl;
+            return -1;
+          }*/
+          if (symbolCode > SYMBOL_ARRAY_SIZE) {
             cerr << "Corrupted dictionary (phonetic symbol code out of range): " <<
                 symbolCode << " at line " << __LINE__ << endl;
             infile.close();
@@ -1439,12 +1440,12 @@ int Dict::loadEkhoDict(const char *path) {
   } // end of while (!infile.eof())
 
 #ifdef DEBUG_PERF
-	clock_t end_clock = clock();
-	cout << "clocks: " << end_clock - begin_clock <<
-  		", CLOCKS_PER_SEC=" << CLOCKS_PER_SEC << endl;
+    clock_t end_clock = clock();
+    cout << "clocks: " << end_clock - begin_clock <<
+    ", CLOCKS_PER_SEC=" << CLOCKS_PER_SEC << endl;
 #endif
 
-	infile.close();
+    infile.close();
   return 0;
 }
 
