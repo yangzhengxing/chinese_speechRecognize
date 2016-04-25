@@ -13,10 +13,8 @@
 #include <functional>
 #include <stdexcept>
 #include <cstdint>
-#include "CommonMacro.h"
 
-//  please include this file in cpp file, if you want to use SplitUTF8/UTF16to8/UTF8to16
-//#include "utfcpp/include/utf8.h"
+#include "utf8.h"
 
 namespace ekho {
 
