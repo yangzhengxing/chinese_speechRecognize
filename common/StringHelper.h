@@ -17,6 +17,7 @@
 #include "utf8.h"
 
 namespace ekho {
+namespace StringHelper {
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -672,6 +673,7 @@ inline std::string& ReplaceEndInplace(std::string& str, const std::string& old_s
 
 /** @} */
 
+}   //  namespace StringHelper
 }   //  namespace ekho
 
 #endif
