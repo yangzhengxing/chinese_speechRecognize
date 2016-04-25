@@ -96,7 +96,14 @@ void Dict::init(void) {
   mKaSymbolIndex = 0;
 
   mDataPath = getDefaultDataPath();
-
+  ifstream fin;
+  fin.open((mDataPath + "/symbol_array.txt").c_str());
+  string line;
+  mSymbolArray.clear();
+  while (getline(fin, line)) {
+      mSymbolArray.push_back(PhoneticSymbol(line.c_str()));
+  }
+  fin.close();
 
 #ifdef ENABLE_FRISO
   string friso_dict_path = mDataPath + "/friso-dict/";

@@ -22,6 +22,7 @@
 #ifndef EKHO_DICT
 #define EKHO_DICT
 
+#include <vector>
 #include "character.h"
 #include "zhy_symbol_map.h"
 #include "zh_symbol_map.h"
@@ -113,7 +114,7 @@ class Dict {
      * Map code to PhoneticSymbol
      */
     // for Mandarin and Cantonese
-    static PhoneticSymbol mSymbolArray[SYMBOL_ARRAY_SIZE];
+    static vector<PhoneticSymbol> mSymbolArray;
 
     // for Hakka
     PhoneticSymbol* mKaSymbolArray[SYMBOL_ARRAY_SIZE];
