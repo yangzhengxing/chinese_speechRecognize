@@ -95,8 +95,6 @@ int main(int argc, char* argv[]) {
 //    {"rate", 1, NULL, 'r'},
 //    {"speed", 1, NULL, 's'},
 //    {"port", 1, NULL, '1'},
-//    {"server", 0, NULL, 'e'},
-//    {"request", 1, NULL, 'q'},
 //    {"symbol", 0, NULL, 'l'},
 //    {"debug", 0, NULL, 'd'},
 //    {"version", 0, NULL, 'n'},
@@ -110,8 +108,6 @@ int main(int argc, char* argv[]) {
 //  int optidx;
 //  string language = "Mandarin";
 //#define NORMAL_MODE 0
-//#define SERVER_MODE 2
-//#define REQUEST_MODE 3
 //  int mode = NORMAL_MODE;
 //  int text_buffer_size = 256;
 //  char *text = (char*)malloc(text_buffer_size);
@@ -129,7 +125,7 @@ int main(int argc, char* argv[]) {
 //  bool is_listing_word = false;
 //  int server_port = 2046;
 //
-//  while ((opt = getopt_long(argc, argv, ":hgv:n:f:o:t:p:r:a:s:eq:lwd1:", opts, &optidx)) != -1 ) {
+//  while ((opt = getopt_long(argc, argv, ":hgv:n:f:o:t:p:r:a:s:lwd1:", opts, &optidx)) != -1 ) {
 //    switch (opt) {
 //      case 'd':
 //        isDebugging = true;
@@ -180,22 +176,8 @@ int main(int argc, char* argv[]) {
 //      case 'a':
 //        volume_delta = atoi(optarg);
 //        break;
-//      case 'e':
-//        mode = SERVER_MODE;
-//        break;
 //      case '1':
 //        server_port = atoi(optarg);
-//        break;
-//      case 'q':
-//        mode = REQUEST_MODE;
-//        if (text_buffer_size < strlen(optarg) + 1) {
-//          do {
-//            text_buffer_size *= 2;
-//          } while (text_buffer_size < strlen(optarg) + 1);
-//          text = (char*)realloc(text, text_buffer_size);
-//        }
-//         
-//        strcpy(text, optarg);
 //        break;
 //      case 'n':
 //        printf("%s\n", PACKAGE_VERSION);
@@ -231,7 +213,7 @@ int main(int argc, char* argv[]) {
 //    }
 //  }
 //
-//  if (mode != REQUEST_MODE && is_listing_symbols) {
+//  if (is_listing_symbols) {
 //    Language lang = ENGLISH;
 //    if (language.compare("Cantonese") == 0) {
 //      lang = CANTONESE;
@@ -260,7 +242,7 @@ int main(int argc, char* argv[]) {
 //    }
 //
 //    cout << endl;
-//  } else if (mode != REQUEST_MODE && is_listing_word) {
+//  } else if (is_listing_word) {
 //    Ekho::debug(isDebugging);
 //    Dict dict(MANDARIN);
 //    list<Word> word_list = dict.lookupWord(text);
@@ -269,37 +251,6 @@ int main(int argc, char* argv[]) {
 //      cout << word->text;
 //      cout << "/";
 //    }
-//  } else if (mode == SERVER_MODE) {
-//    Ekho::debug(isDebugging);
-//    ekho_g = new Ekho(language);
-//    ekho_g->startServer(server_port);
-//  } else if (mode == REQUEST_MODE) {
-//    Ekho::debug(isDebugging);
-//    ekho_g = new Ekho();
-//    ekho_g->setSpeed(tempo_delta);
-//    ekho_g->setPitch(pitch_delta);
-//    ekho_g->setVolume(volume_delta);
-//    
-//    Command cmd;
-//    if (is_listing_symbols) {
-//      cmd = GETPHONSYMBOLS;
-//    } else if (save_type && strcmp(save_type, "ogg") == 0) {
-//      cmd = SAVEOGG;
-//    } else {
-//      cmd = SAVEMP3;
-//    }
-//
-//    if (!save_filename) {
-//      if (cmd == GETPHONSYMBOLS) {
-//        save_filename = "output.sym";
-//      } else if (cmd == SAVEOGG) {
-//        save_filename = "output.ogg";
-//      } else {
-//        save_filename = "output.mp3";
-//      }
-//    }
-//
-//    ekho_g->request("127.0.0.1", server_port, cmd, text, save_filename);
 //  } else {
 //    Ekho::debug(isDebugging);
 //    ekho_g = new Ekho(language);
@@ -330,9 +281,5 @@ int main(int argc, char* argv[]) {
 //    ekho_g = 0;
 //  }
 //
-//  if (text)
-//    free(text);
-//
-//  return 0;
 //}
 
