@@ -42,20 +42,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-//#include <stdio.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <unistd.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#include <dirent.h>
-//#include <time.h>
-//#include <locale.h>
-//#include <dirent.h>
-//#include <getopt.h>
-//#include <iostream>
-//
-//
 //static Ekho *ekho_g = NULL;
 //static bool isDebugging = false;
 
@@ -100,7 +86,6 @@ int main(int argc, char* argv[]) {
 //int main(int argc, char *argv[]) {
 //  struct option opts[] = {
 //    {"help", 0, NULL, 'h'},
-//    {"gui", 0, NULL, 'g'},
 //    {"voice", 1, NULL, 'v'},
 //    {"file", 1, NULL, 'f'},
 //    {"output", 1, NULL, 'o'},
@@ -213,10 +198,6 @@ int main(int argc, char* argv[]) {
 //         
 //        strcpy(text, optarg);
 //        break;
-//      case 'g':
-//        /* xmain seems not thread safe. don't specify other option is -x is specified because argv seems be free */
-//        xmain(&argc, &argv);
-//        return 0;
 //      case 'n':
 //        printf("%s\n", PACKAGE_VERSION);
 //        return 0;
