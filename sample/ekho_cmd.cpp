@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <getopt.h>
 #include "config.h"
 #include "ekho.h"
 #include "StringHelper.h"
@@ -29,7 +30,119 @@
 using namespace std;
 using namespace ekho;
 
+//  global options
+bool isDebugging = false;
+string language = "Mandarin";
+string text_filename;
+string save_filename;
+char *save_type = NULL;
+int pitch_delta = 0;
+int volume_delta = 0;
+int rate_delta = 0;
+int tempo_delta = 0;
+bool is_listing_symbols = false;
+bool is_listing_word = false;
+
+void show_help() {
+    cerr << "Ekho text-to-speech engine." << endl;
+    cerr << "Version: " << PACKAGE_VERSION << endl;
+    cerr << endl;
+    cerr << "Syntax: ekho [option] [text]" << endl;
+    cerr << "-v, --voice=VOICE" << endl;
+    cerr << "        Specified language or voice. ('Cantonese', 'Mandarin', 'Hakka', 'Tibetan', 'Ngangien' and 'Hangul' are available now. Mandarin is the default language.)" << endl;
+    cerr << "-l, --symbol" << endl;
+    cerr << "        List phonetic symbol of text. Characters' symbols are splited by space." << endl;
+    cerr << "-f, --file=FILE" << endl;
+    cerr << "        Speak text file. ('-' for stdin)" << endl;
+    cerr << "-o, --output=FILE" << endl;
+    cerr << "        Output to file." << endl;
+    cerr << "-t, --type=OUTPUT_TYPE" << endl;
+    cerr << "        Output type: wav(default), ogg or mp3" << endl;
+    cerr << "-p, --pitch=PITCH_DELTA" << endl;
+    cerr << "        Set delta pitch. Value range from -100 to 100 (percent)" << endl;
+    cerr << "-a, --volume=VOLUME_DELTA" << endl;
+    cerr << "        Set delta volume. Value range from -100 to 100 (percent)" << endl;
+    cerr << "-r, --rate=RATE" << endl;
+    cerr << "        Set delta rate (this scales pitch and speed at the same time). Value range from -50 to 100 (percent)" << endl;
+    cerr << "-s, --speed=SPEED" << endl;
+    cerr << "        Set delta speed. Value range from -50 to 300 (percent)" << endl;
+    cerr << "--version" << endl;
+    cerr << "        Show version number." << endl;
+    cerr << "-h, --help" << endl;
+    cerr << "        Display this help message." << endl;
+    cerr << endl;
+    cerr << "Please report bugs to Cameron Wong (hgneng at gmail.com)" << endl;
+    exit(1);
+}
+
+void parse_options(int argc, char* argv[]) {
+    struct option opts[] = {
+        {"help", 0, NULL, 'h'},
+        {"voice", 1, NULL, 'v'},
+        {"file", 1, NULL, 'f'},
+        {"output", 1, NULL, 'o'},
+        {"type", 1, NULL, 't'},
+        {"pitch", 1, NULL, 'p'},
+        {"volume", 1, NULL, 'a'},
+        {"rate", 1, NULL, 'r'},
+        {"speed", 1, NULL, 's'},
+        {"symbol", 0, NULL, 'l'},
+        {"debug", 0, NULL, 'd'},
+        {"version", 0, NULL, 'n'},
+        {NULL, 0, NULL, 0}
+    };
+    extern char *optarg;
+    extern int optind, optopt;
+    int opt;
+    int optidx;
+
+    while ((opt = getopt_long(argc, argv, ":hgv:n:o:t:p:r:a:s:lwd", opts, &optidx)) != -1 ) {
+        switch (opt) {
+        case 'd':
+            isDebugging = true;
+            break;
+        case 'l':
+            is_listing_symbols = true;
+            break;
+        case 'w':
+            is_listing_word = true;
+            break;
+        case 'h':
+            show_help();
+            break;
+        case 'v':
+            language = optarg;
+            break;
+        case 'o':
+            save_filename = optarg;
+            break;
+        case 't':
+            save_type = optarg;
+            break;
+        case 'p':
+            pitch_delta = atof(optarg);
+            break;
+        case 'r':
+            rate_delta = atoi(optarg);
+            break;
+        case 's':
+            tempo_delta = atoi(optarg);
+            break;
+        case 'a':
+            volume_delta = atoi(optarg);
+            break;
+        case 'n':
+            cerr << PACKAGE_VERSION << endl;
+            exit(1);
+        case '?' :
+            cerr << "Invalid option: -" << optopt << endl;
+            exit(1);
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
+    parse_options(argc, argv);
     string line;
     vector<string> vWord;
     while (getline(cin, line)) {
@@ -43,137 +156,24 @@ int main(int argc, char* argv[]) {
 }
 
 //static Ekho *ekho_g = NULL;
-//static bool isDebugging = false;
 
 
-//static void show_help(void) {
-//    printf("\
-//Ekho text-to-speech engine.\n\
-//Version: %s\n\n\
-//Syntax: ekho [option] [text]\n\
-//-v, --voice=VOICE\n\
-//        Specified language or voice. ('Cantonese', 'Mandarin', 'Hakka', 'Tibetan', 'Ngangien' and 'Hangul' are available now. Mandarin is the default language.)\n\
-//-l, --symbol\n\
-//        List phonetic symbol of text. Characters' symbols are splited by space.\n\
-//-f, --file=FILE\n\
-//        Speak text file. ('-' for stdin)\n\
-//-o, --output=FILE\n\
-//        Output to file.\n\
-//-t, --type=OUTPUT_TYPE\n\
-//        Output type: wav(default), ogg or mp3\n\
-//-p, --pitch=PITCH_DELTA\n\
-//        Set delta pitch. Value range from -100 to 100 (percent)\n\
-//-a, --volume=VOLUME_DELTA\n\
-//        Set delta volume. Value range from -100 to 100 (percent)\n\
-//-r, --rate=RATE\n\
-//        Set delta rate (this scales pitch and speed at the same time). Value range from -50 to 100 (percent)\n\
-//-s, --speed=SPEED\n\
-//        Set delta speed. Value range from -50 to 300 (percent)\n\
-//--version\n\
-//        Show version number.\n\
-//-h, --help\n\
-//        Display this help message.\n\n\
-//Please report bugs to Cameron Wong (hgneng at gmail.com)\n",
-//PACKAGE_VERSION);
-//}
-//
 //int main(int argc, char *argv[]) {
-//  struct option opts[] = {
-//    {"help", 0, NULL, 'h'},
-//    {"voice", 1, NULL, 'v'},
-//    {"file", 1, NULL, 'f'},
-//    {"output", 1, NULL, 'o'},
-//    {"type", 1, NULL, 't'},
-//    {"pitch", 1, NULL, 'p'},
-//    {"volume", 1, NULL, 'a'},
-//    {"rate", 1, NULL, 'r'},
-//    {"speed", 1, NULL, 's'},
-//    {"symbol", 0, NULL, 'l'},
-//    {"debug", 0, NULL, 'd'},
-//    {"version", 0, NULL, 'n'},
-//    {NULL, 0, NULL, 0}
-//  };
 //  /* set locale to zh_CN.UTF-8 */
 //  //  setlocale(LC_ALL, "zh_CN.UTF-8");
 //
 //  /* get arguments */
-//  int opt;
-//  int optidx;
 //  string language = "Mandarin";
-//  int text_buffer_size = 256;
-//  char *text = (char*)malloc(text_buffer_size);
-//  text[0] = 0;
-//  const char *text_filename = NULL;
-//  const char *save_filename = NULL;
+//  string text_filename;
+//  string save_filename;
 //  char *save_type = NULL;
 //  int pitch_delta = 0;
 //  int volume_delta = 0;
 //  int rate_delta = 0;
 //  int tempo_delta = 0;
-//  extern char *optarg;
-//  extern int optind, optopt;
 //  bool is_listing_symbols = false;
 //  bool is_listing_word = false;
 //
-//  while ((opt = getopt_long(argc, argv, ":hgv:n:f:o:t:p:r:a:s:lwd", opts, &optidx)) != -1 ) {
-//    switch (opt) {
-//      case 'd':
-//        isDebugging = true;
-//        break;
-//      case 'l':
-//        is_listing_symbols = true;
-//        break;
-//      case 'w':
-//        is_listing_word = true;
-//        break;
-//      case 'h':
-//        show_help();
-//        return 0;
-//      case 'v':
-//        language = optarg;
-//        break;
-//      case 'f':
-//        text_filename = optarg;
-//        if (!text_filename) {
-//          cerr << "no filename" << endl;
-//          show_help();
-//          exit(-1);
-//        }
-//        break;
-//      case 'o':
-//        save_filename = optarg;
-//        if (!save_filename) {
-//          show_help();
-//          exit(-1);
-//        }
-//        break;
-//      case 't':
-//        save_type = optarg;
-//        if (!save_type) {
-//          show_help();
-//          exit(-1);
-//        }
-//        break;
-//      case 'p':
-//        pitch_delta = atof(optarg);
-//        break;
-//      case 'r':
-//        rate_delta = atoi(optarg);
-//        break;
-//      case 's':
-//        tempo_delta = atoi(optarg);
-//        break;
-//      case 'a':
-//        volume_delta = atoi(optarg);
-//        break;
-//      case 'n':
-//        printf("%s\n", PACKAGE_VERSION);
-//        return 0;
-//      case '?' :
-//        fprintf(stderr, "Invalid option: -%c\n", optopt);
-//        return -1;
-//    }
-//  }
 //
 //  if (text_filename) {
 //    if (strcmp(text_filename, "-") == 0) {
@@ -181,25 +181,7 @@ int main(int argc, char* argv[]) {
 //    } else {
 //      read_textfile(text_filename, &text);
 //    }
-//  } else {
-//    bool is_first_text = true;
-//    for ( ; optind < argc; optind++) {
-//      if (access(argv[optind], R_OK)) {
-//        if (strlen(text) + strlen(argv[optind]) + 2 > text_buffer_size) {
-//          do {
-//            text_buffer_size *= 2;
-//          } while (strlen(text) + strlen(argv[optind]) + 2 > text_buffer_size);
-//          text = (char*)realloc(text, text_buffer_size);
-//        }
-//        if (is_first_text)
-//          is_first_text = false;
-//        else
-//          strcat(text, " ");
-//        strcat(text, argv[optind]);
-//      }
-//    }
 //  }
-//
 //  if (is_listing_symbols) {
 //    Language lang = ENGLISH;
 //    if (language.compare("Cantonese") == 0) {
