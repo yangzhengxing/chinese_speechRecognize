@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     vector<string> vWord;
     while (getline(cin, line)) {
         //  split sentence to words by space
-        StringHelper::SplitSpace(line, back_inserter(vWord));
+        StringHelper::SplitSpace<string>(line, back_inserter(vWord));
         if (vWord.empty()) {
             continue;
         }
