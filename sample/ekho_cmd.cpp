@@ -134,7 +134,7 @@ void parse_options(int argc, char* argv[]) {
             cerr << PACKAGE_VERSION << endl;
             exit(1);
         case '?' :
-            cerr << "Invalid option: -" << optopt << endl;
+            cerr << "Invalid option: -" << static_cast<char>(optopt) << endl;
             exit(1);
         }
     }
@@ -182,13 +182,6 @@ int main(int argc, char* argv[]) {
 //  //  setlocale(LC_ALL, "zh_CN.UTF-8");
 //
 //
-//  if (text_filename) {
-//    if (strcmp(text_filename, "-") == 0) {
-//      read_stdin(&text);
-//    } else {
-//      read_textfile(text_filename, &text);
-//    }
-//  }
 //  if (is_listing_symbols) {
 //    Language lang = ENGLISH;
 //    if (language.compare("Cantonese") == 0) {

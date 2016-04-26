@@ -14,8 +14,8 @@ echo "睡觉是第四声，觉得是第三声" >> "${text_file}"
 echo "难得糊涂，空难事故" >> "${text_file}"
 
 #   test
-#./ekho_cmd -v "Cantonese" -f "${text_file}"
-./ekho_cmd -v "Mandarin" -f "${text_file}"
+#./ekho_cmd -v "Cantonese" "${text_file}"
+./ekho_cmd -v "Mandarin" "${text_file}"
 
 #   clean
 if [ -e "${text_file}" ]
