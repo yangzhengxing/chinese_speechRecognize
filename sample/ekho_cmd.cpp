@@ -146,8 +146,8 @@ void parse_options(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 	//	parse command line options
     parse_options(argc, argv);
-	//	init ekho
-	Ekho ekho;
+    //  open file
+    istream* pIS = &cin;
     ifstream fin;
     if (!text_filename.empty() && text_filename != "-") {
         fin.open(text_filename.c_str());
@@ -155,11 +155,14 @@ int main(int argc, char* argv[]) {
             cerr << argv[0] << ": open file failed: " << text_filename << endl;
             exit(1);
         }
+        pIS = &fin;
     }
+	//	init ekho
+	//Ekho ekho;
     //  process
     string line;
     vector<string> vWord;
-    while (getline(cin, line)) {
+    while (getline(*pIS, line)) {
         //  split sentence to words by space
         StringHelper::SplitSpace<string>(line, back_inserter(vWord));
         if (vWord.empty()) {
@@ -170,10 +173,9 @@ int main(int argc, char* argv[]) {
     if (fin.is_open()) {
         fin.close();
     }
+    pIS = NULL;
     return 0;
 }
-
-
 
 //int main(int argc, char *argv[]) {
 //  /* set locale to zh_CN.UTF-8 */
