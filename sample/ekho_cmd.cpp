@@ -112,7 +112,6 @@ int main(int argc, char* argv[]) {
 //#define NORMAL_MODE 0
 //#define SERVER_MODE 2
 //#define REQUEST_MODE 3
-//#define LIST_MODE 4
 //  int mode = NORMAL_MODE;
 //  int text_buffer_size = 256;
 //  char *text = (char*)malloc(text_buffer_size);
