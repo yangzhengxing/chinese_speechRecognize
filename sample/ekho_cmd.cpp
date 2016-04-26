@@ -33,7 +33,7 @@ using namespace ekho;
 //  global options
 bool isDebugging = false;
 string language = "Mandarin";
-string text_filename;
+string text_filename = "-";
 string save_filename;
 char *save_type = NULL;
 int pitch_delta = 0;
@@ -47,13 +47,13 @@ void show_help() {
     cerr << "Ekho text-to-speech engine." << endl;
     cerr << "Version: " << PACKAGE_VERSION << endl;
     cerr << endl;
-    cerr << "Syntax: ekho [option] [text]" << endl;
+    cerr << "Syntax: ekho [option] [file]" << endl;
+    cerr << "file" << endl;
+    cerr << "        Input file, if not given or given '-', read from standard input" << endl;
     cerr << "-v, --voice=VOICE" << endl;
     cerr << "        Specified language or voice. ('Cantonese', 'Mandarin', 'Hakka', 'Tibetan', 'Ngangien' and 'Hangul' are available now. Mandarin is the default language.)" << endl;
     cerr << "-l, --symbol" << endl;
     cerr << "        List phonetic symbol of text. Characters' symbols are splited by space." << endl;
-    cerr << "-f, --file=FILE" << endl;
-    cerr << "        Speak text file. ('-' for stdin)" << endl;
     cerr << "-o, --output=FILE" << endl;
     cerr << "        Output to file." << endl;
     cerr << "-t, --type=OUTPUT_TYPE" << endl;
@@ -79,7 +79,6 @@ void parse_options(int argc, char* argv[]) {
     struct option opts[] = {
         {"help", 0, NULL, 'h'},
         {"voice", 1, NULL, 'v'},
-        {"file", 1, NULL, 'f'},
         {"output", 1, NULL, 'o'},
         {"type", 1, NULL, 't'},
         {"pitch", 1, NULL, 'p'},
@@ -139,10 +138,25 @@ void parse_options(int argc, char* argv[]) {
             exit(1);
         }
     }
+	if (optind < argc) {
+    	text_filename = argv[optind];
+	}
 }
 
 int main(int argc, char* argv[]) {
+	//	parse command line options
     parse_options(argc, argv);
+	//	init ekho
+	Ekho ekho;
+    ifstream fin;
+    if (!text_filename.empty() && text_filename != "-") {
+        fin.open(text_filename.c_str());
+        if (!fin.is_open()) {
+            cerr << argv[0] << ": open file failed: " << text_filename << endl;
+            exit(1);
+        }
+    }
+    //  process
     string line;
     vector<string> vWord;
     while (getline(cin, line)) {
@@ -152,27 +166,18 @@ int main(int argc, char* argv[]) {
             continue;
         }
     }
+    //  close
+    if (fin.is_open()) {
+        fin.close();
+    }
     return 0;
 }
 
-//static Ekho *ekho_g = NULL;
 
 
 //int main(int argc, char *argv[]) {
 //  /* set locale to zh_CN.UTF-8 */
 //  //  setlocale(LC_ALL, "zh_CN.UTF-8");
-//
-//  /* get arguments */
-//  string language = "Mandarin";
-//  string text_filename;
-//  string save_filename;
-//  char *save_type = NULL;
-//  int pitch_delta = 0;
-//  int volume_delta = 0;
-//  int rate_delta = 0;
-//  int tempo_delta = 0;
-//  bool is_listing_symbols = false;
-//  bool is_listing_word = false;
 //
 //
 //  if (text_filename) {
