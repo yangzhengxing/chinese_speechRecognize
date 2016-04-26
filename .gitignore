@@ -13,6 +13,6 @@ stamp-h1
 
 # compiled binary
 libekho.a
-ekho
+ekho_cmd
 test_ekho
 
