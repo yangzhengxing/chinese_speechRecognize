@@ -69,12 +69,6 @@ int main(int argc, char* argv[]) {
 //        Set delta rate (this scales pitch and speed at the same time). Value range from -50 to 100 (percent)\n\
 //-s, --speed=SPEED\n\
 //        Set delta speed. Value range from -50 to 300 (percent)\n\
-//--server\n\
-//        Start Ekho TTS server.\n\
-//--request=TEXT\n\
-//        Send request to Ekho TTS server.\n\
-//--port\n\
-//        Set server port. Default is 2046.\n\
 //--version\n\
 //        Show version number.\n\
 //-h, --help\n\
@@ -94,7 +88,6 @@ int main(int argc, char* argv[]) {
 //    {"volume", 1, NULL, 'a'},
 //    {"rate", 1, NULL, 'r'},
 //    {"speed", 1, NULL, 's'},
-//    {"port", 1, NULL, '1'},
 //    {"symbol", 0, NULL, 'l'},
 //    {"debug", 0, NULL, 'd'},
 //    {"version", 0, NULL, 'n'},
@@ -107,8 +100,6 @@ int main(int argc, char* argv[]) {
 //  int opt;
 //  int optidx;
 //  string language = "Mandarin";
-//#define NORMAL_MODE 0
-//  int mode = NORMAL_MODE;
 //  int text_buffer_size = 256;
 //  char *text = (char*)malloc(text_buffer_size);
 //  text[0] = 0;
@@ -123,9 +114,8 @@ int main(int argc, char* argv[]) {
 //  extern int optind, optopt;
 //  bool is_listing_symbols = false;
 //  bool is_listing_word = false;
-//  int server_port = 2046;
 //
-//  while ((opt = getopt_long(argc, argv, ":hgv:n:f:o:t:p:r:a:s:lwd1:", opts, &optidx)) != -1 ) {
+//  while ((opt = getopt_long(argc, argv, ":hgv:n:f:o:t:p:r:a:s:lwd", opts, &optidx)) != -1 ) {
 //    switch (opt) {
 //      case 'd':
 //        isDebugging = true;
@@ -175,9 +165,6 @@ int main(int argc, char* argv[]) {
 //        break;
 //      case 'a':
 //        volume_delta = atoi(optarg);
-//        break;
-//      case '1':
-//        server_port = atoi(optarg);
 //        break;
 //      case 'n':
 //        printf("%s\n", PACKAGE_VERSION);
