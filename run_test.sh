@@ -1,5 +1,6 @@
 #!/bin/bash
 
+bin_file="./ekho"
 text_file="/tmp/ekho.in.txt"
 
 #   prepare
@@ -14,8 +15,8 @@ echo "睡觉是第四声，觉得是第三声" >> "${text_file}"
 echo "难得糊涂，空难事故" >> "${text_file}"
 
 #   test
-#./ekho_cmd -v "Cantonese" "${text_file}"
-./ekho_cmd -v "Mandarin" "${text_file}"
+#${bin_file} -v "Cantonese" "${text_file}"
+${bin_file} -v "Mandarin" "${text_file}"
 
 #   clean
 if [ -e "${text_file}" ]
