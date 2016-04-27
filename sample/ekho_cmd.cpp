@@ -138,13 +138,13 @@ void parse_options(int argc, char* argv[]) {
             exit(1);
         }
     }
-	if (optind < argc) {
-    	text_filename = argv[optind];
-	}
+    if (optind < argc) {
+        text_filename = argv[optind];
+    }
 }
 
 int main(int argc, char* argv[]) {
-	//	parse command line options
+    //  parse command line options
     parse_options(argc, argv);
     //  open file
     istream* pIS = &cin;
@@ -157,8 +157,12 @@ int main(int argc, char* argv[]) {
         }
         pIS = &fin;
     }
-	//	init ekho
-	//Ekho ekho;
+    //  init ekho
+    Ekho ekho(language);
+    ekho.setPitch(pitch_delta);
+    ekho.setSpeed(tempo_delta);
+    ekho.setVolume(volume_delta);
+    ekho.setRate(rate_delta);
     //  process
     string line;
     vector<string> vWord;
@@ -168,6 +172,7 @@ int main(int argc, char* argv[]) {
         if (vWord.empty()) {
             continue;
         }
+        ekho.blockSpeak(line);
     }
     //  close
     if (fin.is_open()) {
