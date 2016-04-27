@@ -52,7 +52,7 @@ namespace ekho {
         /* Constructors.
         */
         explicit Ekho();
-        explicit Ekho(const string& voice);
+        explicit Ekho(string voice);
 
         /* Destructor.
         */
