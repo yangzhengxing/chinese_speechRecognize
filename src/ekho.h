@@ -27,19 +27,8 @@
 #include <pthread.h>
 #include <sndfile.h>
 #include "config.h"
-#include "ekho_dict.h"
 #include "sonic.h"
 #include "ekho_typedef.h"
-
-#ifdef HAVE_PULSEAUDIO
-#include <pulse/simple.h>
-#include <pulse/error.h>
-#endif
-
-#ifdef ANDROID
-#include "flite.h"
-#define ENABLE_ENGLISH
-#endif
 
 #ifdef DEBUG_ANDROID
 #define LOG_TAG "Ekho Engine"
