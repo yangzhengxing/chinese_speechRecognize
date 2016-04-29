@@ -47,41 +47,43 @@ using namespace ekho;
 static Ekho *ekho_g = NULL;
 static bool isDebugging = false;
 
-static void show_help(void) {
-    printf("\
-Ekho text-to-speech engine.\n\
-Version: %s\n\n\
-Syntax: ekho [option] [text]\n\
--v, --voice=VOICE\n\
-        Specified language or voice. ('Cantonese', 'Mandarin', 'Hakka', 'Tibetan', 'Ngangien' and 'Hangul' are available now. Mandarin is the default language.)\n\
--l, --symbol\n\
-        List phonetic symbol of text. Characters' symbols are splited by space.\n\
--f, --file=FILE\n\
-        Speak text file. ('-' for stdin)\n\
--o, --output=FILE\n\
-        Output to file.\n\
--t, --type=OUTPUT_TYPE\n\
-        Output type: wav(default), ogg or mp3\n\
--p, --pitch=PITCH_DELTA\n\
-        Set delta pitch. Value range from -100 to 100 (percent)\n\
--a, --volume=VOLUME_DELTA\n\
-        Set delta volume. Value range from -100 to 100 (percent)\n\
--r, --rate=RATE\n\
-        Set delta rate (this scales pitch and speed at the same time). Value range from -50 to 100 (percent)\n\
--s, --speed=SPEED\n\
-        Set delta speed. Value range from -50 to 300 (percent)\n\
---server\n\
-        Start Ekho TTS server.\n\
---request=TEXT\n\
-        Send request to Ekho TTS server.\n\
---port\n\
-        Set server port. Default is 2046.\n\
---version\n\
-        Show version number.\n\
--h, --help\n\
-        Display this help message.\n\n\
-Please report bugs to Cameron Wong (hgneng at gmail.com)\n",
-PACKAGE_VERSION);
+void show_help() {
+    cerr << "Ekho text-to-speech engine." << endl;
+    cerr << "Version: " << PACKAGE_VERSION << endl;
+    cerr << endl;
+    cerr << "Syntax: ekho [option] [text]" << endl;
+    cerr << "-v, --voice=VOICE" << endl;
+    cerr << "        Specified language or voice. ('Cantonese', 'Mandarin', 'Hakka', 'Tibetan', 'Ngangien' and 'Hangul' are available now. Mandarin is the default language.)" << endl;
+    cerr << "-l, --symbol" << endl;
+    cerr << "        List phonetic symbol of text. Characters' symbols are splited by space." << endl;
+    cerr << "-f, --file=FILE" << endl;
+    cerr << "        Speak text file. ('-' for stdin)" << endl;
+    cerr << "-o, --output=FILE" << endl;
+    cerr << "        Output to file." << endl;
+    cerr << "-t, --type=OUTPUT_TYPE" << endl;
+    cerr << "        Output type: wav(default), ogg or mp3" << endl;
+    cerr << "-p, --pitch=PITCH_DELTA" << endl;
+    cerr << "        Set delta pitch. Value range from -100 to 100 (percent)" << endl;
+    cerr << "-a, --volume=VOLUME_DELTA" << endl;
+    cerr << "        Set delta volume. Value range from -100 to 100 (percent)" << endl;
+    cerr << "-r, --rate=RATE" << endl;
+    cerr << "        Set delta rate (this scales pitch and speed at the same time). Value range from -50 to 100 (percent)" << endl;
+    cerr << "-s, --speed=SPEED" << endl;
+    cerr << "        Set delta speed. Value range from -50 to 300 (percent)" << endl;
+    cerr << "--server" << endl;
+    cerr << "        Start Ekho TTS server." << endl;
+    cerr << "--request=TEXT" << endl;
+    cerr << "        Send request to Ekho TTS server." << endl;
+    cerr << "--port" << endl;
+    cerr << "        Set server port. Default is 2046." << endl;
+    cerr << "--version" << endl;
+    cerr << "        Show version number." << endl;
+    cerr << "-h, --help" << endl;
+    cerr << "        Display this help message." << endl;
+    cerr << endl;
+    cerr << "Please report bugs to Cameron Wong (hgneng at gmail.com)" << endl;
+    cerr << endl;
+    exit(1);
 }
 
 static int read_textfile(const char *filename, char **text) {
