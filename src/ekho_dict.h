@@ -22,6 +22,7 @@
 #ifndef EKHO_DICT
 #define EKHO_DICT
 
+#include "ekho_typedef.h"
 #include "character.h"
 #include "zhy_symbol_map.h"
 #include "zh_symbol_map.h"
@@ -40,15 +41,6 @@ extern "C" {
 using namespace std;
 
 namespace ekho {
-typedef enum {
-  CANTONESE = 1,
-  MANDARIN = 2,
-  ENGLISH = 3,
-  KOREAN = 4,
-  HAKKA = 5,
-  TIBETAN = 6,
-  NGANGIEN = 7,
-} Language;
 
 typedef enum {
   ENGLISH_TEXT = 1,

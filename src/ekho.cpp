@@ -31,6 +31,7 @@
 #include <dirent.h>
 #include <getopt.h>
 #include <iostream>
+#include <list>
 #include "config.h"
 
 #ifdef HAVE_GTK2
@@ -43,6 +44,7 @@
 #endif
 
 #include "ekho.h"
+#include "ekho_dict.h"
 
 using namespace ekho;
 
