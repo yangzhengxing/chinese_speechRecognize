@@ -178,19 +178,15 @@ int main(int argc, char *argv[]) {
   extern char *optarg;
   extern int optind, optopt;
   bool is_listing_symbols = false;
-  bool is_listing_word = false;
   int server_port = 2046;
 
-  while ((opt = getopt_long(argc, argv, ":hv:n:f:o:t:p:r:a:s:eq:lwd1:", opts, &optidx)) != -1 ) {
+  while ((opt = getopt_long(argc, argv, ":hv:n:f:o:t:p:r:a:s:eq:ld1:", opts, &optidx)) != -1 ) {
     switch (opt) {
       case 'd':
         isDebugging = true;
         break;
       case 'l':
         is_listing_symbols = true;
-        break;
-      case 'w':
-        is_listing_word = true;
         break;
       case 'h':
         show_help();
@@ -312,15 +308,6 @@ int main(int argc, char *argv[]) {
     }
 
     cout << endl;
-  } else if (mode != REQUEST_MODE && is_listing_word) {
-    Ekho::debug(isDebugging);
-    Dict dict(MANDARIN);
-    list<Word> word_list = dict.lookupWord(text);
-    list<Word>::iterator word = word_list.begin();
-    for (; word != word_list.end(); word++) {
-      cout << word->text;
-      cout << "/";
-    }
   } else if (mode == SERVER_MODE) {
     Ekho::debug(isDebugging);
     ekho_g = new Ekho(language);
