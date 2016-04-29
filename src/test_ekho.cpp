@@ -25,8 +25,10 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <list>
 #include "config.h"
 #include "ekho.h"
+#include "ekho_dict.h"
 
 #ifdef ENABLE_WIN32
 #include <windows.h>
