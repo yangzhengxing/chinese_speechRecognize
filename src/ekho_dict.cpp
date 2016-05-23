@@ -100,7 +100,7 @@ void Dict::init(void) {
 #ifdef ENABLE_FRISO
   string friso_dict_path = mDataPath + "/friso-dict/";
   realpath(friso_dict_path.c_str(), g_friso_lex_dir);
-  
+
   // append / to end
   int len = strlen(g_friso_lex_dir);
   g_friso_lex_dir[len] = '/';
@@ -209,7 +209,7 @@ int Dict::setLanguage(Language lang) {
     return 0;
 
   struct stat statBuf;
-  
+
   // clear old dictionary
   for (int i = 0; i < 65536; ++i) {
     mDictItemArray[i].character.phonSymbol = 0;
@@ -221,7 +221,7 @@ int Dict::setLanguage(Language lang) {
   mExtraDictItemMap.clear();
 
   mLanguage = lang;
-  
+
   if (lang == CANTONESE) {
     string zhyDict(mDataPath);
     zhyDict += "/zhy.dict";
@@ -389,7 +389,7 @@ void Dict::addSpecialSymbols(void) {
   mPunctuationNameMap[3853] = "ཤད"; // "shad";
   mPunctuationNameMap[3851] = "ཚེ��?"; // "tseg";
 
-  // + - * / ? ... ｛｝“”{}#$%^&*()_+| backslash <>~` 
+  // + - * / ? ... ｛｝“”{}#$%^&*()_+| backslash <>~`
   mPunctuationNameMap[43] = "加号";
   mPunctuationNameMap[42] = "乘号";
   mPunctuationNameMap[47] = "除号";
@@ -429,7 +429,7 @@ int Dict::setVoice(string voice) {
   } else if (mLanguage == KOREAN) {
     key_char = 44032; // the first char in ko_list
   }
-  
+
   string path = mDataPath;
   path += "/";
   path += voice;
@@ -749,7 +749,7 @@ list<Word> Dict::lookupWord(const char *text) {
         wordlist.push_back(Word(word, type, word_phons, offset, bytes));
       }
     }
-    
+
     if (!lastword.empty())
       wordlist.push_back(Word(lastword, ENGLISH_TEXT));
 
@@ -1336,13 +1336,13 @@ int Dict::loadEkhoDict(const char *path) {
       code = (unsigned char)infile.get();
       tmpInt = (unsigned char)infile.get();
       tmpInt <<= 8;
-      code += tmpInt; 
+      code += tmpInt;
       tmpInt = (unsigned char)infile.get();
       tmpInt <<= 16;
-      code += tmpInt; 
+      code += tmpInt;
       tmpInt = (unsigned char)infile.get();
       tmpInt <<= 24;
-      code += tmpInt; 
+      code += tmpInt;
     }
 
     // get character symbol
@@ -1396,13 +1396,13 @@ int Dict::loadEkhoDict(const char *path) {
             code = infile.get();
             tmpInt = infile.get();
             tmpInt <<= 8;
-            code += tmpInt; 
+            code += tmpInt;
             tmpInt = infile.get();
             tmpInt <<= 16;
-            code += tmpInt; 
+            code += tmpInt;
             tmpInt = infile.get();
             tmpInt <<= 24;
-            code += tmpInt; 
+            code += tmpInt;
           }
 
           // get symbol
@@ -1426,7 +1426,7 @@ int Dict::loadEkhoDict(const char *path) {
           charList.push_back(c);
           //cout << c.getUtf8() << c.phonSymbol->symbol; // debug code
         }
-        
+
         // add word to list
         wordList->push_back(charList);
 //        cout << " "; // debug code
@@ -1453,16 +1453,16 @@ void Dict::getWordContext(const char *text, char *in_word_context, int phons_len
   if (mLanguage != MANDARIN && mLanguage != CANTONESE)
     return;
   friso_set_text(mFrisoTask, (char*)text);
-  int ii = 0; 
+  int ii = 0;
   while (ii < phons_len && friso_next(mFriso, mFrisoConfig, mFrisoTask)) {
     string word(mFrisoTask->hits->word);
     list<Character> char_list = Character::split(word);
     int len = char_list.size();
     for (int i = 0; i < len - 1 && ii < phons_len; i++) {
-      in_word_context[ii] = 1; 
+      in_word_context[ii] = 1;
       ii++;
-    }    
-    in_word_context[ii] = 0; 
+    }
+    in_word_context[ii] = 0;
     ii++;
   }
 
@@ -1512,14 +1512,14 @@ void Dict::saveEkhoVoiceFile() {
   ofstream os(index_file.c_str(), ifstream::binary);
   os.put((unsigned char)(mSfinfo.samplerate & 0xFF));
   os.put((unsigned char)((mSfinfo.samplerate >> 8) & 0xFF));
-  
+
   unsigned char type = 0;
-  if (strcmp(mVoiceFileType, "wav") == 0)
+  if (mVoiceFileType == "wav")
     type = 1;
-  else if (strcmp(mVoiceFileType, "gsm") == 0)
+  else if (mVoiceFileType == "gsm")
     type = 2;
   os.put(type);
-  
+
   // reserve for symbo count
   os.put(0);
   os.put(0);
@@ -1542,7 +1542,7 @@ void Dict::saveEkhoVoiceFile() {
 
   do {
     if ((dp = readdir(dirp)) != NULL) {
-      char *suffix = strstr(dp->d_name, mVoiceFileType);
+      char *suffix = strstr(dp->d_name, mVoiceFileType.c_str());
       if (!suffix || suffix - dp->d_name < 2)
         continue;
 
@@ -1569,7 +1569,7 @@ void Dict::saveEkhoVoiceFile() {
         } while (bytes == 128000);
 
         fclose(gsmfile);
-        
+
         os.put(total_bytes & 0xFF);
         os.put((total_bytes >> 8) & 0xFF);
         os.put((total_bytes >> 16) & 0xFF);
@@ -1589,7 +1589,7 @@ void Dict::saveEkhoVoiceFile() {
           symbol.erase(0, pos + 1);
         } while (pos == string::npos);
         symbols.push_back(symbol);
-        
+
         os.put(symbols.size());
         for (list<string>::iterator sym = symbols.begin();
             sym != symbols.end(); sym++) {
@@ -1610,7 +1610,7 @@ void Dict::saveEkhoVoiceFile() {
         } while (bytes == 512000);
 
         fclose(gsmfile);
-        
+
         os.put(total_bytes & 0xFF);
         os.put((total_bytes >> 8) & 0xFF);
         os.put((total_bytes >> 16) & 0xFF);
@@ -1643,6 +1643,7 @@ void Dict::loadEkhoVoiceFile(string path) {
   string index_file = path + ".index";
   string voice_file = path + ".voice";
 
+
   // get samplerate
   ifstream is(index_file.c_str(), ifstream::binary);
   lowbyte = (unsigned char)is.get();
@@ -1655,6 +1656,7 @@ void Dict::loadEkhoVoiceFile(string path) {
     mVoiceFileType = "wav";
   else if (lowbyte == 2)
     mVoiceFileType = "gsm";
+
 
   // get symbol count
   is.get();
@@ -1685,6 +1687,8 @@ void Dict::loadEkhoVoiceFile(string path) {
 
       mSymbolArray[code].offset = offset;
       mSymbolArray[code].bytes = bytes;
+
+
     } else {
       // bytes for word
       char symbols[256] = {0};
@@ -1725,9 +1729,10 @@ void Dict::loadEkhoVoiceFile(string path) {
   memset(&mSfinfo, 0, sizeof(mSfinfo));
   mSfinfo.samplerate = samplerate;
   mSfinfo.channels = 1;
-  if (strcmp(mVoiceFileType, "gsm"))
+  if (mVoiceFileType == "gsm")
     mSfinfo.format = SF_FORMAT_WAV | SF_FORMAT_GSM610;
   //mVoiceFile = sf_open(voice_file.c_str(), SFM_READ, &mSfinfo);
+
   mVoiceFile = fopen(voice_file.c_str(), "r");
 }
 

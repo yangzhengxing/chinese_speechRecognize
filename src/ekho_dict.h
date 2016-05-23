@@ -97,7 +97,7 @@ class Dict {
     string mDataPath;
     //SNDFILE *mVoiceFile;
     FILE *mVoiceFile;
-    const char *mVoiceFileType; // "wav" or "gsm"
+    string mVoiceFileType; // "wav" or "gsm"
     map<string, PhoneticSymbol> mWordSymbolMap;
     SF_INFO mSfinfo;
 
