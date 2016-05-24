@@ -19,27 +19,57 @@
  **************************************************************************/
 
 #include <sndfile.h>
+#include <string.h>
 #include "libsndfilexx.h"
+
+using namespace std;
 
 //  class SndFileImpl
 class SndFileImpl {
 private:
     SNDFILE* m_pSndFile;
+    SF_INFO m_SFInfo;
+private:
+    void init() {
+        m_pSndFile = nullptr;
+        memset(&m_SFInfo, 0, sizeof(SF_INFO));
+    }
+    void throwSndFileError() {
+        throw runtime_error(sf_strerror(NULL));
+    }
 public:
     explicit SndFileImpl() {
-        m_pSndFile = nullptr;
+        init();
     }
     ~SndFileImpl() {
         close();
     }
-    void open(const char* filename, std::ios_base::openmode mode) {
+    void open(const char* filename, ios_base::openmode mode) {
+        close();
+        int sndmode = 0;
+        if ((mode & ios_base::in) && (mode & ios_base::out)) {
+            sndmode = SFM_RDWR;
+        }
+        else if (mode & ios_base::in) {
+            sndmode = SFM_READ;
+        }
+        else if (mode & ios_base::out) {
+            sndmode = SFM_WRITE; 
+        }
+        else {
+            throw runtime_error("Unknown open mode");
+        }
+        m_pSndFile = sf_open(filename, sndmode, &m_SFInfo);
+        if (!m_pSndFile) {
+            throwSndFileError();
+        }
     }
     void close() {
         if (m_pSndFile) {
             //  ignore return value
             sf_close(m_pSndFile) ;
         }
-        m_pSndFile = nullptr;
+        init();
     }
 };
 
@@ -55,18 +85,11 @@ SndFile::~SndFile() {
     m_pSndFileImpl = nullptr;
 }
 
-void SndFile::open(const char* filename, std::ios_base::openmode mode) {
+void SndFile::open(const char* filename, ios_base::openmode mode) {
     this->m_pSndFileImpl->open(filename, mode);
 }
 
 void SndFile::close() {
     this->m_pSndFileImpl->close();
-}
-
-
-int main(int argc, char* argv[]) {
-    SndFile sf;
-    sf.open("a.wav");
-    return 0;
 }
 
