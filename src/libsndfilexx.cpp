@@ -58,6 +58,12 @@ public:
         }
         init();
     }
+    auto readf_short(short *buf, sf_count_t frames) -> sf_count_t {
+        if (!m_pSndFile) {
+            throw runtime_error("SndFile is not open");
+        }
+        return sf_readf_short(m_pSndFile, buf, frames);
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -78,5 +84,9 @@ void SndFile::open(const char* filename, int mode, SndFileInfo& info) {
 
 void SndFile::close() {
     this->m_pSndFileImpl->close();
+}
+
+sf_count_t SndFile::readf_short(short *buf, sf_count_t frames) {
+    return this->m_pSndFileImpl->readf_short(buf, frames);
 }
 

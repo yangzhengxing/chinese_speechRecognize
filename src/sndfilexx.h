@@ -26,7 +26,7 @@
 
 class SndFileImpl;
 
-class SndFileInfo : public SF_INFO {
+struct SndFileInfo : public SF_INFO {
     explicit SndFileInfo() {
         frames     = 0;
         samplerate = 0;
@@ -45,6 +45,7 @@ public:
     ~SndFile();
     void open(const char* filename, int mode, SndFileInfo& info);
     void close();
+    sf_count_t readf_short(short *buf, sf_count_t frames);
 };
 
 #endif
