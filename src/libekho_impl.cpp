@@ -898,8 +898,8 @@ static string stripSsml(string text) {
 // @TODO: remove this deprecared method
 int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
 #ifdef DEBUG_ANDROID
-  LOGD("Ekho::synth(%s, %p, %p) voiceFileType=%s lang=%d", text.c_str(), callback,
-      userdata, mDict.mVoiceFileType, mDict.getLanguage());
+  LOGD("EkhoImpl::synth(%s, %p, %p) voiceFileType=%s lang=%d", text.c_str(), callback,
+      userdata, mDict.mVoiceFileType.c_str(), mDict.getLanguage());
 #endif
 
   // init
@@ -930,8 +930,8 @@ int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
     return 0;
   }
 
-  // check whehter voice file available
-  if (!mDict.mVoiceFileType && mDict.getLanguage() != ENGLISH) {
+  // check whether voice file available
+  if (mDict.mVoiceFileType.empty() && mDict.getLanguage() != ENGLISH) {
     cerr << "Voice file not found." << endl;
     return -1;
   }
@@ -1103,12 +1103,12 @@ int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
         string path(mDict.mDataPath);
         path += "/";
         path += mDict.getVoice();
-        pPcm = (*li)->getPcm(path.c_str(), mDict.mVoiceFileType, size);
+        pPcm = (*li)->getPcm(path.c_str(), mDict.mVoiceFileType.c_str(), size);
         
         // speak Mandarin for Chinese
         if (!pPcm && mDict.getLanguage() == TIBETAN) {
           path = mDict.mDataPath + "/pinyin";
-          pPcm = (*li)->getPcm(path.c_str(), mDict.mVoiceFileType, size);
+          pPcm = (*li)->getPcm(path.c_str(), mDict.mVoiceFileType.c_str(), size);
         }
 
         if (!mPcmCache)
@@ -1173,7 +1173,7 @@ const char* EkhoImpl::getPcmFromFestival(string text, int& size) {
     size = flite_wave->num_samples * 2;
     free(flite_wave);
 #ifdef DEBUG_ANDROID
-    LOGD("Ekho::getPcmFromFestival(%s, %d)", text.c_str(), size);
+    LOGD("EkhoImpl::getPcmFromFestival(%s, %d)", text.c_str(), size);
 #endif
     return (const char*)pcm;
   } else {
@@ -1417,7 +1417,7 @@ int EkhoImpl::getSpeed(void) {
 
 void EkhoImpl::setPitch(int pitch_delta) {
   if (EkhoImpl::mDebug) {
-    cerr << "Ekho::setPitch(" << pitch_delta << ")" << endl;
+    cerr << "EkhoImpl::setPitch(" << pitch_delta << ")" << endl;
   }
 #ifdef ENABLE_SOUNDTOUCH
   if (pitch_delta >= -100 && pitch_delta <= 100) {
@@ -1840,7 +1840,7 @@ void EkhoImpl::translatePunctuations(string& text) {
 
 int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
 #ifdef DEBUG_ANDROID
-  LOGD("Ekho::synth2(%s, %p, %p) voiceFileType=%s lang=%d", text.c_str(), callback,
+  LOGD("EkhoImpl::synth2(%s, %p, %p) voiceFileType=%s lang=%d", text.c_str(), callback,
       userdata, mDict.mVoiceFileType, mDict.getLanguage());
 #endif
 
@@ -1867,8 +1867,8 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
     return 0;
   }
 
-  // check whehter voice file available
-  if (!mDict.mVoiceFileType && mDict.getLanguage() != ENGLISH) {
+  // check whether voice file available
+  if (mDict.mVoiceFileType.empty() && mDict.getLanguage() != ENGLISH) {
     cerr << "Voice file not found." << endl;
     return -1;
   }
@@ -1893,7 +1893,7 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
   filterSpaces(text);
 
 #ifdef DEBUG_ANDROID
-  LOGD("Ekho::synth2 filtered text=%s", text.c_str());
+  LOGD("EkhoImpl::synth2 filtered text=%s", text.c_str());
 #endif
 
   list<Word> wordlist = mDict.lookupWord(text);
@@ -1965,7 +1965,7 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
             for (list<PhoneticSymbol*>::iterator symbol = word->symbols.begin();
                 symbol != word->symbols.end(); symbol++) {
 #ifdef DEBUG_ANDROID
-  LOGD("Ekho::synth2 speak %s", (*symbol)->symbol);
+  LOGD("EkhoImpl::synth2 speak %s", (*symbol)->symbol);
 #endif
               Language lang = mDict.getLanguage();
               if (lang == MANDARIN || lang == CANTONESE) {
@@ -1974,7 +1974,7 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
                   callback((short*)pPcm, size / 2, userdata, false, false);
               } else {
                 string path = mDict.mDataPath + "/" + mDict.getVoice();
-                pPcm = (*symbol)->getPcm(path.c_str(), mDict.mVoiceFileType, size);
+                pPcm = (*symbol)->getPcm(path.c_str(), mDict.mVoiceFileType.c_str(), size);
                 if (pPcm && size > 0)
                   callback((short*)pPcm, size / 2, userdata, false, false);
               }
@@ -1982,7 +1982,7 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
               // speak Mandarin for Chinese
               if (!pPcm && lang == TIBETAN) {
                 string path = mDict.mDataPath + "/pinyin";
-                pPcm = (*symbol)->getPcm(path.c_str(), mDict.mVoiceFileType, size);
+                pPcm = (*symbol)->getPcm(path.c_str(), mDict.mVoiceFileType.c_str(), size);
                 if (pPcm && size > 0)
                   callback((short*)pPcm, size / 2, userdata, false, false);
               }
