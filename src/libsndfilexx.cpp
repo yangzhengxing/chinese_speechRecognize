@@ -19,7 +19,7 @@
  **************************************************************************/
 
 #include <string.h>
-#include "libsndfilexx.h"
+#include "sndfilexx.h"
 
 using namespace std;
 
