@@ -18,7 +18,6 @@
  * MA  02110-1301, USA.                                                    *
  **************************************************************************/
 
-#include <sndfile.h>
 #include <string.h>
 #include "libsndfilexx.h"
 
@@ -44,22 +43,10 @@ public:
     ~SndFileImpl() {
         close();
     }
-    void open(const char* filename, ios_base::openmode mode) {
+    void open(const char* filename, int mode, SndFileInfo& info) {
         close();
-        int sndmode = 0;
-        if ((mode & ios_base::in) && (mode & ios_base::out)) {
-            sndmode = SFM_RDWR;
-        }
-        else if (mode & ios_base::in) {
-            sndmode = SFM_READ;
-        }
-        else if (mode & ios_base::out) {
-            sndmode = SFM_WRITE; 
-        }
-        else {
-            throw runtime_error("Unknown open mode");
-        }
-        m_pSndFile = sf_open(filename, sndmode, &m_SFInfo);
+        m_SFInfo = info;
+        m_pSndFile = sf_open(filename, mode, &m_SFInfo);
         if (!m_pSndFile) {
             throwSndFileError();
         }
@@ -85,8 +72,8 @@ SndFile::~SndFile() {
     m_pSndFileImpl = nullptr;
 }
 
-void SndFile::open(const char* filename, ios_base::openmode mode) {
-    this->m_pSndFileImpl->open(filename, mode);
+void SndFile::open(const char* filename, int mode, SndFileInfo& info) {
+    this->m_pSndFileImpl->open(filename, mode, info);
 }
 
 void SndFile::close() {

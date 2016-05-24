@@ -22,8 +22,20 @@
 
 #include <iostream>
 #include <fstream>
+#include <sndfile.h>
 
 class SndFileImpl;
+
+class SndFileInfo : public SF_INFO {
+    explicit SndFileInfo() {
+        frames     = 0;
+        samplerate = 0;
+        channels   = 0;
+        format     = 0;
+        sections   = 0;
+        seekable   = 0;
+    }
+};
 
 class SndFile {
 private:
@@ -31,8 +43,7 @@ private:
 public:
     explicit SndFile();
     ~SndFile();
-    void open(const char* filename, 
-              std::ios_base::openmode mode = std::ios_base::in | std::ios_base::out);
+    void open(const char* filename, int mode, SndFileInfo& info);
     void close();
 };
 
