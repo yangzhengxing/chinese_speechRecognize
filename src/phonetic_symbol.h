@@ -31,6 +31,7 @@
 #include <iostream>
 #include <sndfile.h>
 #include <string.h>
+#include "ekho_utils.h"
 
 using namespace std;
 
@@ -38,6 +39,9 @@ namespace ekho {
   typedef struct SymbolCode {
     const char *name;
     unsigned short code;
+    void print(string prefix) {
+        cerr << prefix << ": SymbolCode.code=" << code << ", SymbolCode.name=" << name << endl;
+    }
   } SymbolCode;
 
   class PhoneticSymbol {
