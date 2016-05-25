@@ -88,7 +88,7 @@ namespace ekho {
       };
 
       inline const char* getPcm(const char *wavDir, const char *postfix, int &size) {
-        SF_INFO sfinfo;
+        SndFileInfo sfinfo;
         return getPcm(wavDir, postfix, size, sfinfo);
       };
 
@@ -133,8 +133,7 @@ namespace ekho {
 #endif
 
           rewind(gsmfile);
-          SF_INFO sfinfo;
-          memset(&sfinfo, 0, sizeof(SF_INFO));
+          SndFileInfo sfinfo;
           SNDFILE *sndfile = sf_open_fd(fileno(gsmfile), SFM_READ, &sfinfo, 1);
           readSndfile(sndfile, sfinfo);
         }
@@ -143,10 +142,9 @@ namespace ekho {
         return mPcm;
       }
 
-      const char* getPcm(const char *wavDir, const char *postfix, int &size, SF_INFO &sfinfo) {
+      const char* getPcm(const char *wavDir, const char *postfix, int &size, SndFileInfo& sfinfo) {
         if (!mPcm) {
-          memset(&sfinfo, 0, sizeof(SF_INFO));
-
+          sfinfo = SndFileInfo();
           string wav_file = wavDir;
           // char | 32 means get lower case
           if (this->symbol[0] == '\\')
@@ -174,7 +172,7 @@ namespace ekho {
         return mPcm;
       };
 
-      void readSndfile(SNDFILE *sndfile, SF_INFO sfinfo) {
+      void readSndfile(SNDFILE *sndfile, SndFileInfo sfinfo) {
 #ifdef DEBUG_ANDROID
                 LOGV("readSndfile(%p, %p)", sndfile, &sfinfo);
 #endif
