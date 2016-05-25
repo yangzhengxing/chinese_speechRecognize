@@ -27,10 +27,10 @@ bin_PROGRAMS = test_ekho ekho
 
 ekho_SOURCES = src/ekho.cpp
 ekho_LDADD = libekho.a $(LIBEKHO_LIB) @LIB_GTK2@
-ekho_CXXFLAGS = @CFLAG_GTK2@ -I$(srcdir)/include -I$(srcdir)/common/utfcpp/source -I$(srcdir)/sonic -pthread @CFLAG_FRISO@
+ekho_CXXFLAGS = @CFLAG_GTK2@ -I$(srcdir)/include -I$(srcdir)/common -I$(srcdir)/common/utfcpp/source -I$(srcdir)/sonic -pthread @CFLAG_FRISO@ -std=c++11
 	
 test_ekho_SOURCES = src/test_ekho.cpp
-test_ekho_CXXFLAGS = -I$(srcdir)/common/utfcpp/source -I$(srcdir)/sonic @CFLAG_FRISO@
+test_ekho_CXXFLAGS = -I$(srcdir)/common -I$(srcdir)/common/utfcpp/source -I$(srcdir)/sonic @CFLAG_FRISO@ -std=c++11
 test_ekho_LDADD = libekho.a $(LIBEKHO_LIB)
 
 DATA_DIR = $(srcdir)/ekho-data
