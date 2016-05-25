@@ -103,7 +103,7 @@ class Dict {
     FILE *mVoiceFile;
     string mVoiceFileType; // "wav" or "gsm"
     map<string, PhoneticSymbol> mWordSymbolMap;
-    SF_INFO mSfinfo;
+    SndFileInfo mSfinfo;
 
     /**
      * Map code to PhoneticSymbol
