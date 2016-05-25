@@ -280,8 +280,7 @@ int EkhoImpl::saveWav(string text, string filename) {
     }
 
     // open record file
-    SF_INFO sfinfo;
-    memcpy(&sfinfo, &mDict.mSfinfo, sizeof(SF_INFO));
+    SndFileInfo sfinfo = mDict.mSfinfo;
     sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
     if (EkhoImpl::mDebug) {
       cerr << "sfinfo format: samplerate=" << sfinfo.samplerate <<
@@ -315,8 +314,7 @@ int EkhoImpl::saveOgg(string text, string filename) {
     }
 
     // open record file
-    SF_INFO sfinfo;
-    memcpy(&sfinfo, &mDict.mSfinfo, sizeof(SF_INFO));
+    SndFileInfo sfinfo = mDict.mSfinfo;
     sfinfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
     if (EkhoImpl::mDebug) {
       cerr << "sfinfo format: samplerate=" << sfinfo.samplerate <<
@@ -380,8 +378,7 @@ int EkhoImpl::saveMp3(string text, string filename) {
     pcmswapbytes = 0; // don't swap bytes
 
     /* Try to open the sound file */
-    SF_INFO gs_wfInfo;
-    memset(&gs_wfInfo, 0, sizeof(gs_wfInfo));
+    SndFileInfo gs_wfInfo;
     SNDFILE *gs_pSndFileIn = sf_open(tmp_wav.c_str(), SFM_READ, &gs_wfInfo);
     if (gs_pSndFileIn == NULL) {
         sf_perror(gs_pSndFileIn);
