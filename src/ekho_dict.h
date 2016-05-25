@@ -29,6 +29,7 @@
 #include <map>
 #include <list>
 #include <sndfile.h>
+#include "sndfilexx.h"
 
 #include "config.h"
 #ifdef ENABLE_FRISO
@@ -63,6 +64,9 @@ struct Word {
       symbols(sym), offset(0), bytes(0) {};
   Word(string txt, TextType t, list<PhoneticSymbol*> sym, unsigned int off, unsigned short b):
       type(t), text(txt), symbols(sym), offset(off), bytes(b) {};
+  void print(string prefix) {
+      cerr << prefix << ": Word.type=" << type << ", Word.text=" << text << ", Word.symbols.size=" << symbols.size() << ", offset=" << offset << ", bytes=" << bytes << endl;
+  }
 };
 
 struct DictItem {
