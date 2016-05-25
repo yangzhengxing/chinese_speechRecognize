@@ -13,7 +13,7 @@ include_HEADERS = src/ekho.h src/ekho_dict.h src/character.h src/phonetic_symbol
 libsndfilexx_a_SOURCES = src/libsndfilexx.cpp
 libsndfilexx_a_CXXFLAGS = -I$(srcdir)/common -std=c++11
 
-libekho_a_SOURCES = src/libekho.cpp src/libekho_impl.cpp src/ekho_dict.cpp src/number.cpp common/sr-convert/dsp.cpp src/zhy_symbol_map.cpp src/zh_symbol_map.cpp src/symbol_array.cpp sonic/sonic.c
+libekho_a_SOURCES = src/libekho.cpp src/libekho_impl.cpp src/ekho_dict.cpp src/number.cpp common/sr-convert/dsp.cpp src/zhy_symbol_map.cpp src/zh_symbol_map.cpp src/symbol_array.cpp sonic/sonic.c src/ekho_utils.cpp
 libekho_a_CXXFLAGS = -I$(srcdir)/common -I$(srcdir)/common/utfcpp/source -I$(srcdir)/sonic @CFLAG_PULSEAUDIO@ @CFLAG_FESTIVAL@ -I$(srcdir)/common/sr-convert -DOUTPUT16BIT -D_$(host_cpu) -pthread @CFLAG_FRISO@ -std=c++11
 LIBEKHO_LIB = @LIB_PULSEAUDIO@ @LIB_FESTIVAL@ @LIB_MP3LAME@ -lsndfile libsndfilexx.a @LIB_FRISO@
 
