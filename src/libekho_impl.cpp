@@ -209,7 +209,7 @@ int EkhoImpl::initStream(void) {
     }
 
     this->stream = pa_simple_new(NULL, "Ekho", PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error);
-    
+
     if (!this->stream) {
       cerr << "pa_simple_new() failed: " << pa_strerror(error) << endl;
       cerr << "pa_sample_spec(format=" << ss.format <<
@@ -365,184 +365,6 @@ string EkhoImpl::genTempFilename() {
     */
     return tmpfile;
 }
-
-#if 0 // no longer used
-#ifdef HAVE_OGG
-// This function should no longer use.
-// Instead, we use libsndfile to write OGG files.
-int EkhoImpl::saveOgg(string text, string filename) {
-
-    string tmp_wav = genTempFilename() + ".wav";
-
-    // save to wav first
-    this->saveWav(text, tmp_wav);
-
-    if (EkhoImpl::mDebug) {
-        cerr << "Writting OGG file " << filename << endl;
-    }
-
-    ogg_stream_state os; /* take physical pages, weld into a logical
-                            stream of packets */
-    ogg_page         og; /* one Ogg bitstream page.  Vorbis packets are inside */
-    ogg_packet       op; /* one raw packet of data for decode */
-    vorbis_info      vi; /* struct that stores all the static vorbis bitstream settings */
-    vorbis_comment   vc; /* struct that stores all the user comments */
-    vorbis_dsp_state vd; /* central working state for the packet->PCM decoder */
-    vorbis_block     vb; /* local working space for packet->PCM decode */
-    int i;
-    int eos = 0;
-
-#ifdef ENABLE_WIN32
-    /* We need to set stdin/stdout to binary mode. */
-    /* if we were reading/writing a file, it would also need to in
-       binary mode, eg, fopen("file.wav","wb"); */
-    /* Beware the evil ifdef. We avoid these where we can, but this one we 
-       cannot. Don't add any more, you'll probably go to hell if you do. */
-    _setmode( _fileno( stdin ), _O_BINARY );
-    _setmode( _fileno( stdout ), _O_BINARY );  
-#endif  
-
-    /* open input file */
-    SF_INFO sfinfo;
-    memset(&sfinfo, 0, sizeof(sfinfo));
-    SNDFILE *wav_file = sf_open(tmp_wav.c_str(), SFM_READ, &sfinfo);
-    if (!wav_file) {
-        cerr << "Fail to open file " << tmp_wav << ": " << sf_strerror(NULL)
-            << " at " << __LINE__ << endl;
-        return -1;
-    }
-
-    /* open output file */
-    FILE *ogg_file = fopen(filename.c_str(), "wb");
-
-    vorbis_info_init(&vi);
-    /*********************************************************************
-     * Encoding using a VBR quality mode.  The usable range is -.1
-     * (lowest quality, smallest file) to 1. (highest quality, largest file).
-     */
-    int ret = vorbis_encode_init_vbr(&vi, 1, mDict.mSfinfo.samplerate, 0.1);
-    if (ret) {
-        cerr << "vorbis_encode_init_vbr fail" << endl;
-        return -1;
-    }
-
-    /* add a comment */
-    vorbis_comment_init(&vc);
-    vorbis_comment_add_tag(&vc, (char*)"ENCODER", (char*)"Ekho");
-
-    /* set up the analysis state and auxiliary encoding storage */
-    vorbis_analysis_init(&vd,&vi);
-    vorbis_block_init(&vd,&vb);
-
-    /* set up our packet->stream encoder */
-    /* pick a random serial number; that way we can more likely build
-       chained streams just by concatenation */
-    srand(time(NULL));
-    ogg_stream_init(&os,rand());
-    /* Vorbis streams begin with three headers; the initial header (with
-       most of the codec setup parameters) which is mandated by the Ogg
-       bitstream spec.  The second header holds any comment fields.  The
-       third header holds the bitstream codebook.  We merely need to
-       make the headers, then pass them to libvorbis one at a time;
-       libvorbis handles the additional Ogg bitstream constraints */
-
-    ogg_packet header;
-    ogg_packet header_comm;
-    ogg_packet header_code;
-
-    vorbis_analysis_headerout(&vd, &vc, &header, &header_comm, &header_code);
-    ogg_stream_packetin(&os, &header); // automatically placed in its own page
-    ogg_stream_packetin(&os, &header_comm);
-    ogg_stream_packetin(&os, &header_code);
-
-    /* This ensures the actual
-     * audio data will start on a new page, as per spec
-     */
-    while (!eos) {
-        int result = ogg_stream_flush(&os, &og);
-        if (result == 0) break;
-        fwrite(og.header, 1, og.header_len, ogg_file);
-        fwrite(og.body, 1, og.body_len, ogg_file);
-    }
-
-    short *wav_buf = new short[BUFFER_SIZE];
-
-    while (!eos) {
-        int samples = sf_readf_short(wav_file, (short*)wav_buf, BUFFER_SIZE);
-
-        if (samples == 0){
-            /* end of file.  this can be done implicitly in the mainline,
-               but it's easier to see here in non-clever fashion.
-               Tell the library we're at end of stream so that it can handle
-               the last frame and mark end of stream in the output properly */
-            vorbis_analysis_wrote(&vd,0);
-
-        } else {
-            /* data to encode */
-
-            /* expose the buffer to submit data */
-            float **buffer = vorbis_analysis_buffer(&vd, samples + samples);
-
-            /* uninterleave samples */
-            for (i = 0; i < samples; i++) {
-                buffer[0][i] = wav_buf[i] / 32768.f;
-            }
-
-            /* tell the library how much we actually submitted */
-            vorbis_analysis_wrote(&vd, i);
-        }
-
-        /* vorbis does some data preanalysis, then divvies up blocks for
-           more involved (potentially parallel) processing.  Get a single
-           block for encoding now */
-        while (vorbis_analysis_blockout(&vd, &vb) == 1) {
-
-            /* analysis, assume we want to use bitrate management */
-            vorbis_analysis(&vb,NULL);
-            vorbis_bitrate_addblock(&vb);
-
-            while (vorbis_bitrate_flushpacket(&vd,&op)){
-
-                /* weld the packet into the bitstream */
-                ogg_stream_packetin(&os, &op);
-
-                /* write out pages (if any) */
-                while (!eos) {
-                    int result = ogg_stream_pageout(&os,&og);
-                    if (result == 0) break;
-                    fwrite(og.header, 1, og.header_len, ogg_file);
-                    fwrite(og.body, 1, og.body_len, ogg_file);
-
-                    /* this could be set above, but for illustrative purposes, I do
-                       it here (to show that vorbis does know where the stream ends) */
-                    if (ogg_page_eos(&og)) eos = 1;
-                }
-            }
-        }
-    }
-
-    delete(wav_buf);
-
-    /* clean up and exit.  vorbis_info_clear() must be called last */
-    ogg_stream_clear(&os);
-    vorbis_block_clear(&vb);
-    vorbis_dsp_clear(&vd);
-    vorbis_comment_clear(&vc);
-    vorbis_info_clear(&vi);
-
-    fclose(ogg_file);
-    sf_close(wav_file);
-
-    //remove(tmp_wav.c_str());
-
-    if (EkhoImpl::mDebug) {
-        cerr << "Finish writting " << filename << endl;
-    }
-
-    return 0;
-}
-#endif
-#endif
 
 #ifdef HAVE_MP3LAME
 int EkhoImpl::saveMp3(string text, string filename) {
@@ -716,7 +538,7 @@ int EkhoImpl::speakPcm(short *pcm, int frames, void *arg,
   if (!pcm)
     return -1;
   EkhoImpl *pEkho = (EkhoImpl*)arg;
-  
+
 #ifdef HAVE_PULSEAUDIO
   if (!pEkho->mSonicStream)
     return 0;
@@ -803,8 +625,8 @@ int EkhoImpl::writePcm(short *pcm, int frames, void *arg,
     if (frames > 0) {
       int writtenFrames = sf_writef_short(pEkho->mSndFile, buffer, frames);
       if (frames != writtenFrames) {
-        cerr << "Fail to write WAV file " 
-          << writtenFrames << " out of " << frames 
+        cerr << "Fail to write WAV file "
+          << writtenFrames << " out of " << frames
           << " written" << endl;
         return -1;
       }
@@ -891,7 +713,7 @@ static string stripSsml(string text) {
         return text.substr(first_gt + 1, last_endtag - first_gt - endtag.length());
     }
   }
-  
+
   return text;
 }
 
@@ -1083,7 +905,7 @@ int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
           wi--;
         }
       }
-      
+
       if (pause > 0) {
 #ifdef DEBUG_ANDROID
         LOGD("pause");
@@ -1104,7 +926,7 @@ int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
         path += "/";
         path += mDict.getVoice();
         pPcm = (*li)->getPcm(path.c_str(), mDict.mVoiceFileType.c_str(), size);
-        
+
         // speak Mandarin for Chinese
         if (!pPcm && mDict.getLanguage() == TIBETAN) {
           path = mDict.mDataPath + "/pinyin";
@@ -1165,7 +987,7 @@ int EkhoImpl::play(string file) {
 }
 
 // It's caller's responsibility to delete the returned pointer
-const char* EkhoImpl::getPcmFromFestival(string text, int& size) { 
+const char* EkhoImpl::getPcmFromFestival(string text, int& size) {
 #ifdef ANDROID
   if (mFliteVoice) {
     cst_wave *flite_wave = flite_text_to_wave(text.c_str(), mFliteVoice);
@@ -1279,7 +1101,7 @@ int EkhoImpl::setVoice(string voice) {
   } else if (voice.compare("en") == 0) {
     voice = "English";
   }
-  
+
   if (voice.find("jyutping") == 0) {
     mDict.setLanguage(CANTONESE);
   } else if (voice.find("pinyin") == 0) {
@@ -1299,12 +1121,12 @@ int EkhoImpl::setVoice(string voice) {
     mDict.setLanguage(MANDARIN);
     voice = "pinyin";
   }
-  
+
   if (mDict.setVoice(voice.c_str()) != 0)
     return -2;
-  
+
   this->initStream();
-  
+
   return 0;
 }
 
@@ -1445,7 +1267,7 @@ void EkhoImpl::setVolume(int volume_delta) {
 // Using sonic's setVolume doesn't work. Don't know why...
 //  } else {
   if (mSonicStream)
-    sonicSetVolume(mSonicStream, (float)(100 + volume_delta) / 100);    
+    sonicSetVolume(mSonicStream, (float)(100 + volume_delta) / 100);
 //    this->volumeDelta = volume_delta;
   }
 }
@@ -1519,7 +1341,7 @@ int EkhoImpl::startServer(int port) {
   }
 
 #ifndef ENABLE_WIN32
-  // disable SIGPIPE 
+  // disable SIGPIPE
   struct sigaction act, oact;
   act.sa_handler = SIG_IGN;
   sigemptyset(&act.sa_mask);
@@ -1624,7 +1446,7 @@ int EkhoImpl::startServer(int port) {
     } else {
       cerr << "Fail to open " << tmpfile << endl;
     }
-    
+
     close(clientFd);
     if (EkhoImpl::mDebug) {
       cerr << "close connection from "
@@ -1656,7 +1478,7 @@ int EkhoImpl::request(string ip, int port, Command cmd, string text, string outf
   struct hostent *he;
   struct sockaddr_in their_addr; // connector's address information
 
-  if ((he = gethostbyname(ip.c_str())) == NULL) {  // get the host info 
+  if ((he = gethostbyname(ip.c_str())) == NULL) {  // get the host info
     fprintf(stderr, "gethostbyname error\n");
     exit(1);
   }
@@ -1666,12 +1488,12 @@ int EkhoImpl::request(string ip, int port, Command cmd, string text, string outf
     exit(1);
   }
 
-  their_addr.sin_family = AF_INET;    // host byte order 
-  their_addr.sin_port = htons(port);  // short, network byte order 
+  their_addr.sin_family = AF_INET;    // host byte order
+  their_addr.sin_port = htons(port);  // short, network byte order
   their_addr.sin_addr = *((struct in_addr *)he->h_addr);
   memset(their_addr.sin_zero, 0, sizeof their_addr.sin_zero);
 
-  // connect socket, retry 3 times 
+  // connect socket, retry 3 times
   if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof their_addr) == -1) {
     sleep(1);
     if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof their_addr) == -1) {
@@ -1717,7 +1539,7 @@ int EkhoImpl::request(string ip, int port, Command cmd, string text, string outf
 
   do {
     if ((numbytes = recv(sockfd, buf, BUFFER_SIZE, 0)) == -1) {
-      cerr << "Fail to receive " << outfile 
+      cerr << "Fail to receive " << outfile
         << " at line " << __LINE__ << endl;
       break;
     }
@@ -1740,7 +1562,7 @@ int EkhoImpl::request(string ip, int port, Command cmd, string text, string outf
 
   delete[] data;
 
-  return 0;  
+  return 0;
 }
 
 void EkhoImpl::filterSpaces(string& text) {
@@ -1768,7 +1590,7 @@ void EkhoImpl::filterSpaces(string& text) {
       cerr << "Invalid UTF8 encoding" << endl;
       text = text2;
       return;
-    }   
+    }
 #endif
 
     if (in_chinese_context && (c == 32 || c == 12288)) {
@@ -1783,7 +1605,7 @@ void EkhoImpl::filterSpaces(string& text) {
 
     while (it2 != it)
       it2++;
-  }   
+  }
 
   if (changed) {
     text = text2;
@@ -1815,7 +1637,7 @@ void EkhoImpl::translatePunctuations(string& text) {
       cerr << "Invalid UTF8 encoding" << endl;
       text = text2;
       return;
-    }   
+    }
 #endif
 
     if (in_chinese_context && mDict.isPunctuationChar(c)) {
@@ -1831,7 +1653,7 @@ void EkhoImpl::translatePunctuations(string& text) {
 
     while (it2 != it)
       it2++;
-  }   
+  }
 
   if (changed) {
     text = text2;
@@ -1911,7 +1733,7 @@ int EkhoImpl::synth2(string text, SynthCallback *callback, void *userdata) {
           callback((short*)pPcm, size / 2, userdata, false, false);
         break;
 
-      case ENGLISH_TEXT: 
+      case ENGLISH_TEXT:
         if (pause > 0) {
           word--; // turn back pointer
           if (pause > 1)
