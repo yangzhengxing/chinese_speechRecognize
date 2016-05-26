@@ -66,10 +66,6 @@ namespace ekho {
         }*/
       };
 
-      const char *symbol;
-      unsigned int offset; // bytes' offset
-      unsigned short bytes;
-
       void setPcm(char *pcm, const int size) {
         //  TODO: pass by vector
         mPcm.clear();
@@ -227,8 +223,14 @@ namespace ekho {
         return ps;
       }
 
+    public:
+      const char *symbol;
+      unsigned int offset; // bytes' offset
+      unsigned short bytes;
     private:
       vector<char> mPcm;
   };
 }
+
 #endif
+
