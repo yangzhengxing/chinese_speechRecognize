@@ -1690,15 +1690,15 @@ void Dict::loadEkhoVoiceFile(string path) {
 
     } else {
       // bytes for word
-      char symbols[256] = {0};
+      string symbols;
       for (int i = 0; i < code_count; i++) {
         // code
         lowbyte = (unsigned char)is.get();
         code = (unsigned char)is.get();
         code = (code << 8) + lowbyte;
-        strcat(symbols, mSymbolArray[code].symbol.c_str());
+        symbols += mSymbolArray[code].symbol;
         if (i < code_count - 1)
-          strcat(symbols, "-");
+          symbols += "-";
       }
 
       // offset
