@@ -25,11 +25,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include "StringHelper.h"
 #include "ekho_dict.h"
 #include "phonetic_symbol.h"
 #include "character.h"
 #include "zhy_symbol_map.h"
 #include "zh_symbol_map.h"
+#include "ekho_utils.h"
 
 #ifdef _WIN32_WINNT
 #include <io.h>
@@ -618,26 +620,26 @@ list<PhoneticSymbol*> Dict::lookup(list<Character> &charList, bool firstWord) {
     list<PhoneticSymbol*>::reverse_iterator psIt = phonList.rbegin();
     while (psIt != phonList.rend()) {
       while (psIt != phonList.rend() &&
-          (*psIt)->symbol[strlen((*psIt)->symbol) - 1] != '3') {
+          (*psIt)->symbol[(*psIt)->symbol.size() - 1] != '3') {
         psIt++;
       }
 
       if (psIt != phonList.rend()) {
         psIt++;
         if (psIt != phonList.rend() &&
-            (*psIt)->symbol[strlen((*psIt)->symbol) - 1] == '3') {
+            (*psIt)->symbol[(*psIt)->symbol.size() - 1] == '3') {
           list<PhoneticSymbol*>::reverse_iterator psNextIt = psIt;
           psNextIt++;
           if (psNextIt != phonList.rend() &&
-              (*psNextIt)->symbol[strlen((*psNextIt)->symbol) - 1] == '3') {
+              (*psNextIt)->symbol[(*psNextIt)->symbol.size() - 1] == '3') {
             char sym[10] = {0};
-            strcpy(sym, (*psIt)->symbol);
+            strcpy(sym, (*psIt)->symbol.c_str());
             sym[strlen(sym) - 1] = '2';
             *psIt = getZhPhon(sym);
             psIt++;
           }
           char sym[10] = {0};
-          strcpy(sym, (*psIt)->symbol);
+          strcpy(sym, (*psIt)->symbol.c_str());
           sym[strlen(sym) - 1] = '2';
           *psIt = getZhPhon(sym);
         }
@@ -845,13 +847,13 @@ list<Word> Dict::lookupWord(const char *text) {
         }
       }
 
-      if (code < 65536 && mDictItemArray[code].character.phonSymbol && strstr(mDictItemArray[code].character.phonSymbol->symbol, "pause") > 0) {
+      if (code < 65536 && mDictItemArray[code].character.phonSymbol && strstr(mDictItemArray[code].character.phonSymbol->symbol.c_str(), "pause") > 0) {
         // it's a symbol, not including space
-        if (strcmp(mDictItemArray[code].character.phonSymbol->symbol, "fullpause") == 0)
+        if (mDictItemArray[code].character.phonSymbol->symbol == "fullpause")
           type = FULL_PAUSE;
-        else if (strcmp(mDictItemArray[code].character.phonSymbol->symbol, "halfpause") == 0)
+        else if (mDictItemArray[code].character.phonSymbol->symbol == "halfpause")
           type = HALF_PAUSE;
-        else if (strcmp(mDictItemArray[code].character.phonSymbol->symbol, "quaterpause") == 0)
+        else if (mDictItemArray[code].character.phonSymbol->symbol == "quaterpause")
           type = QUATER_PAUSE;
 
         // submit pending English word
@@ -1048,7 +1050,7 @@ int Dict::loadEspeakDict(const char *path) {
           }
 
           if (symbol.length() > 0) {
-            // asign phonetic symbol to character
+            // assign phonetic symbol to character
             if (ch != word.end()) {
               SymbolCode *pSymCode;
               if (mLanguage == CANTONESE) {
@@ -1228,11 +1230,11 @@ int Dict::saveEkhoDict(const char *path) {
 
       // write character symbol
       SymbolCode *pSymCode;
-      const char *symbol = di->character.phonSymbol->symbol;
+      string symbol = di->character.phonSymbol->symbol;
       if (mLanguage == CANTONESE) {
-        pSymCode = ZHY_PHash::in_word_set(symbol, strlen(symbol));
+        pSymCode = ZHY_PHash::in_word_set(symbol.c_str(), symbol.size());
       } else if (mLanguage == MANDARIN) {
-        pSymCode = ZH_PHash::in_word_set(symbol, strlen(symbol));
+        pSymCode = ZH_PHash::in_word_set(symbol.c_str(), symbol.size());
       } else {
         cerr << "not implemented" << endl;
       }
@@ -1280,9 +1282,9 @@ int Dict::saveEkhoDict(const char *path) {
             // write character symbol
             symbol = charItor->phonSymbol->symbol;
             if (mLanguage == CANTONESE) {
-              pSymCode = ZHY_PHash::in_word_set(symbol, strlen(symbol));
+              pSymCode = ZHY_PHash::in_word_set(symbol.c_str(), symbol.size());
             } else if (mLanguage == MANDARIN) {
-              pSymCode = ZH_PHash::in_word_set(symbol, strlen(symbol));
+              pSymCode = ZH_PHash::in_word_set(symbol.c_str(), symbol.size());
             } else {
               cerr << "not implemented" << endl;
             }
@@ -1643,7 +1645,6 @@ void Dict::loadEkhoVoiceFile(string path) {
   string index_file = path + ".index";
   string voice_file = path + ".voice";
 
-
   // get samplerate
   ifstream is(index_file.c_str(), ifstream::binary);
   lowbyte = (unsigned char)is.get();
@@ -1656,7 +1657,6 @@ void Dict::loadEkhoVoiceFile(string path) {
     mVoiceFileType = "wav";
   else if (lowbyte == 2)
     mVoiceFileType = "gsm";
-
 
   // get symbol count
   is.get();
@@ -1688,7 +1688,6 @@ void Dict::loadEkhoVoiceFile(string path) {
       mSymbolArray[code].offset = offset;
       mSymbolArray[code].bytes = bytes;
 
-
     } else {
       // bytes for word
       char symbols[256] = {0};
@@ -1697,8 +1696,7 @@ void Dict::loadEkhoVoiceFile(string path) {
         lowbyte = (unsigned char)is.get();
         code = (unsigned char)is.get();
         code = (code << 8) + lowbyte;
-        mSymbolArray[code].symbol;
-        strcat(symbols, mSymbolArray[code].symbol);
+        strcat(symbols, mSymbolArray[code].symbol.c_str());
         if (i < code_count - 1)
           strcat(symbols, "-");
       }
@@ -1737,3 +1735,4 @@ void Dict::loadEkhoVoiceFile(string path) {
 }
 
 }
+

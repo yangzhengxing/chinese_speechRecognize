@@ -840,14 +840,15 @@ int EkhoImpl::synth(string text, SynthCallback *callback, void *userdata) {
       }
     } else
 #endif
+        //  TODO: compare string
     if (li != phons.end() && (*li) &&
-        (*li)->symbol && strstr((*li)->symbol, "fullpause") > 0) {
+        !(*li)->symbol.empty() && strstr((*li)->symbol.c_str(), "fullpause") > 0) {
       pause += 1;
     } else if (li != phons.end() && (*li) &&
-        (*li)->symbol && strstr((*li)->symbol, "halfpause") > 0) {
+        !(*li)->symbol.empty() && strstr((*li)->symbol.c_str(), "halfpause") > 0) {
       pause += 0.5;
     } else if (li != phons.end() && (*li) &&
-        (*li)->symbol && strstr((*li)->symbol, "quaterpause") > 0) {
+        !(*li)->symbol.empty() && strstr((*li)->symbol.c_str(), "quaterpause") > 0) {
       pause += 0.25;
     } else {
       speaknow = true;

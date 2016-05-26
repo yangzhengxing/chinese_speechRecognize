@@ -46,7 +46,7 @@ namespace ekho {
 
   class PhoneticSymbol {
     public:
-      PhoneticSymbol(void): symbol(0), offset(0), bytes(0) {};
+      PhoneticSymbol(void): offset(0), bytes(0) {};
       PhoneticSymbol(const char *sym):
         symbol(sym), offset(0), bytes(0) {};
       PhoneticSymbol(const char *sym, unsigned int off, unsigned short b):
@@ -59,28 +59,23 @@ namespace ekho {
       }*/
 
       ~PhoneticSymbol(void) {
-        /*
-        if (symbol) {
-          delete symbol;
-          symbol = 0;
-        }*/
-      };
+      }
 
       void setPcm(char *pcm, const int size) {
         //  TODO: pass by vector
         mPcm.clear();
         mPcm.reserve(size);
         std::copy(pcm, pcm + size, back_inserter(mPcm));
-      };
+      }
 
       inline const char* getPcm(int &size) {
         return getPcm("", "wav", size);
-      };
+      }
 
       inline const char* getPcm(const char *wavDir, const char *postfix, int &size) {
         SndFileInfo sfinfo;
         return getPcm(wavDir, postfix, size, sfinfo);
-      };
+      }
 
       const char* getPcm(FILE *file, int &size) {
 #ifdef DEBUG_ANDROID
@@ -154,23 +149,21 @@ namespace ekho {
             wav_file += postfix;
           }
 
-          //std::vector<char> v;
-          //try {
-          //    v = ekho_utils::ReadSndFile(wav_file.c_str(), sfinfo);
-          //}
-          //catch (std::runtime_error e) {
-          //    std::cerr << e.what() << endl;
-          //    return NULL;
-          //}
-          //mSize = v.size();
+          try {
+              mPcm = ekho_utils::ReadSndFile(wav_file.c_str(), sfinfo);
+          }
+          catch (std::runtime_error e) {
+              std::cerr << e.what() << endl;
+              return NULL;
+          }
 
-          SNDFILE *sndfile = sf_open(wav_file.c_str(), SFM_READ, &sfinfo);
-          readSndfile(sndfile, sfinfo);
+          //SNDFILE *sndfile = sf_open(wav_file.c_str(), SFM_READ, &sfinfo);
+          //readSndfile(sndfile, sfinfo);
         }
 
         size = mPcm.size();
         return &mPcm[0];
-      };
+      }
 
       void readSndfile(SNDFILE *sndfile, SndFileInfo& sfinfo) {
 #ifdef DEBUG_ANDROID
@@ -216,7 +209,7 @@ namespace ekho {
 
             sf_close(sndfile);
           }
-      };
+      }
  
       static PhoneticSymbol* getUnknownPhoneticSymbol() {
         static PhoneticSymbol *ps = new PhoneticSymbol(" ");
@@ -224,7 +217,7 @@ namespace ekho {
       }
 
     public:
-      const char *symbol;
+      string symbol;
       unsigned int offset; // bytes' offset
       unsigned short bytes;
     private:
