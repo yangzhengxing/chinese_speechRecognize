@@ -46,11 +46,11 @@ namespace ekho {
 
   class PhoneticSymbol {
     public:
-      PhoneticSymbol(void): symbol(0), mPcm(0), mSize(0), offset(0), bytes(0) {};
+      PhoneticSymbol(void): symbol(0), offset(0), bytes(0) {};
       PhoneticSymbol(const char *sym):
-        symbol(sym), mPcm(0), mSize(0), offset(0), bytes(0) {};
+        symbol(sym), offset(0), bytes(0) {};
       PhoneticSymbol(const char *sym, unsigned int off, unsigned short b):
-        symbol(sym), mPcm(0), mSize(0), offset(off), bytes(b) {};
+        symbol(sym), offset(off), bytes(b) {};
       /*
       PhoneticSymbol(const PhoneticSymbol &ps) {
         symbol = ps.symbol; // copy the content, or there will be double free
@@ -64,11 +64,6 @@ namespace ekho {
           delete symbol;
           symbol = 0;
         }*/
-
-        if (mPcm) {
-          delete[] mPcm;
-          mPcm = 0;
-        }
       };
 
       const char *symbol;
@@ -76,11 +71,10 @@ namespace ekho {
       unsigned short bytes;
 
       void setPcm(char *pcm, const int size) {
-        if (mPcm) {
-          delete mPcm;
-        }
-        mPcm = pcm;
-        mSize = size;
+        //  TODO: pass by vector
+        mPcm.clear();
+        mPcm.reserve(size);
+        std::copy(pcm, pcm + size, back_inserter(mPcm));
       };
 
       inline const char* getPcm(int &size) {
@@ -96,7 +90,7 @@ namespace ekho {
 #ifdef DEBUG_ANDROID
         LOGV("getPcm(%p, %d) offset=%d bytes=%d", file, size, offset, bytes);
 #endif
-        if (!mPcm && fseek(file, offset, SEEK_SET) == 0) {
+        if (mPcm.empty() && fseek(file, offset, SEEK_SET) == 0) {
 #ifdef ANDROID
           FILE *gsmfile = fopen("/data/data/net.eguidedog.ekho.cantonese/cache/tmpfile", "wb+");
           if (!gsmfile)
@@ -138,12 +132,12 @@ namespace ekho {
           readSndfile(sndfile, sfinfo);
         }
 
-        size = mSize;
-        return mPcm;
+        size = mPcm.size();
+        return &mPcm[0];
       }
 
       const char* getPcm(const char *wavDir, const char *postfix, int &size, SndFileInfo& sfinfo) {
-        if (!mPcm) {
+        if (mPcm.empty()) {
           sfinfo = SndFileInfo();
           string wav_file = wavDir;
           // char | 32 means get lower case
@@ -164,15 +158,25 @@ namespace ekho {
             wav_file += postfix;
           }
 
+          //std::vector<char> v;
+          //try {
+          //    v = ekho_utils::ReadSndFile(wav_file.c_str(), sfinfo);
+          //}
+          //catch (std::runtime_error e) {
+          //    std::cerr << e.what() << endl;
+          //    return NULL;
+          //}
+          //mSize = v.size();
+
           SNDFILE *sndfile = sf_open(wav_file.c_str(), SFM_READ, &sfinfo);
           readSndfile(sndfile, sfinfo);
         }
 
-        size = mSize;
-        return mPcm;
+        size = mPcm.size();
+        return &mPcm[0];
       };
 
-      void readSndfile(SNDFILE *sndfile, SndFileInfo sfinfo) {
+      void readSndfile(SNDFILE *sndfile, SndFileInfo& sfinfo) {
 #ifdef DEBUG_ANDROID
                 LOGV("readSndfile(%p, %p)", sndfile, &sfinfo);
 #endif
@@ -197,9 +201,8 @@ namespace ekho {
               case SF_FORMAT_VORBIS:
               case SF_FORMAT_GSM610:
               case SF_FORMAT_PCM_16:
-                mSize = (int)sfinfo.frames * 2 * sfinfo.channels;
-                mPcm = new char[mSize];
-                samples = (int)sf_readf_short(sndfile, (short int*)mPcm, sfinfo.frames);
+                mPcm.resize((int)sfinfo.frames * 2 * sfinfo.channels);
+                samples = (int)sf_readf_short(sndfile, (short int*)&mPcm[0], sfinfo.frames);
 #ifdef DEBUG_ANDROID
                 LOGV("read samples: %d, %p", samples, mPcm);
 #endif
@@ -225,8 +228,7 @@ namespace ekho {
       }
 
     private:
-      char *mPcm;
-      int mSize;
+      vector<char> mPcm;
   };
 }
 #endif
