@@ -4,10 +4,9 @@
 
 namespace ekho {
 namespace ekho_utils {
-    std::vector<char> ReadSndFile(const char* filename) {
+    std::vector<char> ReadSndFile(const char* filename, SndFileInfo& sfinfo) {
         std::vector<char> vBuf;
         vBuf.clear();
-        SndFileInfo sfinfo;
         SndFile sndfile;
         sndfile.open(filename, SFM_READ, sfinfo);   //  exception could be thrown here
         //  channels are corrupted

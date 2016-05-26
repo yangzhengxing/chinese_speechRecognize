@@ -8,7 +8,7 @@
 
 namespace ekho {
 namespace ekho_utils {
-    std::vector<char> ReadSndFile(const char* filename);
+    std::vector<char> ReadSndFile(const char* filename, SndFileInfo& sfinfo);
 
 }   //  end of namespace ekho_utils
 }   //  end of namespace ekho
