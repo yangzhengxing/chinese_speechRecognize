@@ -371,19 +371,49 @@ inline TOutputIter SplitChar(const std::string& str, TOutputIter result, char se
     return detail::SplitStringImpl<TElem, TOutputIter>(str, result, s, output_empty);
 }
 
+//  convert UTF8 code to string
+//  buf is the symbol buffer, should be at least 5 size long
+inline std::string UTF8Code2String(uint32_t code, char* buf = NULL) {
+    static char symbol[] = {0, 0, 0, 0, 0, 0, 0, 0};   //  actually 5 zeros should be enough
+    if (buf == NULL) {
+        buf = symbol;
+    }
+    std::fill(buf, buf+5, 0);
+    utf8::append(code, buf);
+    return std::string(buf);
+}
+
+/** @brief Split string-like container to sequence of individual characters.
+ *
+ *  @param[in]  begin The begin iterator, the type of *begin should be char.
+ *  @param[in]  end   The end iterator, the type of *end should be char.
+ *  @param[in]  func  The processing function for individual character (as uint32_t). Callable func(uint32_t code).
+ *  @note Invalid code is not handled.
+ */
+template <typename TInputIter, typename TFunc>
+void SplitUTF8Func(TInputIter begin, TInputIter end, TFunc func) {
+    for (TInputIter it=begin; it<end; )
+    {
+        uint32_t code = utf8::next(it, end);
+        func(code);
+    }
+}
+
+template <typename TOutputIter>
+TOutputIter SplitUTF8Code(const std::string& str, TOutputIter result) {
+    auto func = [&] (uint32_t code) {
+        (*result++) = code;
+    };
+    SplitUTF8Func(str.begin(), str.end(), func);
+    return result;
+}
+
 template <typename TOutputIter>
 TOutputIter SplitUTF8(const std::string& str, TOutputIter result) {
-    for (auto it=str.begin(); it<str.end(); )
-    {
-        char symbol[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};   //  actually 5 zeros should be enough
-        uint32_t code = utf8::next(it, str.end());
-        if (code == 0)
-        {
-            continue;
-        }
-        utf8::append(code, symbol); // initialize array `symbol`
-        (*result++) = std::string(symbol);
-    }
+    auto func = [&] (uint32_t code) {
+        (*result++) = UTF8Code2String(code);
+    };
+    SplitUTF8Func(str.begin(), str.end(), func);
     return result;
 }
 
