@@ -1715,7 +1715,7 @@ void Dict::loadEkhoVoiceFile(string path) {
       bytes = (unsigned char)is.get();
       bytes = (bytes << 8) + lowbyte;
 
-      mWordSymbolMap[symbols] = PhoneticSymbol(symbols, offset, bytes);
+      mWordSymbolMap[symbols] = PhoneticSymbol(symbols.c_str(), offset, bytes);
     }
   }
 
