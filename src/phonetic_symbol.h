@@ -51,12 +51,6 @@ namespace ekho {
         symbol(sym), offset(0), bytes(0) {};
       PhoneticSymbol(const char *sym, unsigned int off, unsigned short b):
         symbol(sym), offset(off), bytes(b) {};
-      /*
-      PhoneticSymbol(const PhoneticSymbol &ps) {
-        symbol = ps.symbol; // copy the content, or there will be double free
-        wavFile = ps.wavFile;
-        mPcm = ps.getPcm(mSize);
-      }*/
 
       ~PhoneticSymbol(void) {
       }
