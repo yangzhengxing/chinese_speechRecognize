@@ -56,7 +56,6 @@ namespace ekho {
       }
 
       void setPcm(char *pcm, const int size) {
-        //  TODO: pass by vector
         mPcm.clear();
         mPcm.reserve(size);
         std::copy(pcm, pcm + size, back_inserter(mPcm));
